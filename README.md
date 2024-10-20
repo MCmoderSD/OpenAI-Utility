@@ -15,7 +15,7 @@ First you need to add the dependency to your ```pom.xml``` file:
     <dependency>
         <groupId>de.MCmoderSD</groupId>
         <artifactId>OpenAI</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </dependency>
 </dependencies>
 ```
@@ -304,3 +304,5 @@ public class Main {
     }
 }
 ```
+
+For more examples, you can check the [YEPPTalk](https://github.com/MCmoderSD/YEPPTalk) project. <br>
