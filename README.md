@@ -2,13 +2,7 @@
 
 This is a Java Utility for the OpenAI API Services. <br>
 It uses the [OpenAI Library](https://github.com/TheoKanning/openai-java) from [TheoKanning](https://github.com/TheoKanning/) which is sadly not maintained anymore. <br>
-
-
-## Use cases
-
-This Utility is used to interact with the OpenAI API Services. <br>
-It is being developed to be used in my [YEPPBot - Twitch Chatbot](https://github.com/MCmoderSD/YEPPBot/). <br>
-But should work in any other Java Project as well. <br>
+The goal of this Utility is to provide a very easy way to interact with the OpenAI API Services. <br>
 
 Currently, it supports the Chat, Image and Speech API Services. <br>
 
@@ -17,32 +11,19 @@ First you need to add the dependency to your ```pom.xml``` file:
 
 ### Maven
 ```xml
-<repositories>
-    <repository>
-        <id>github</id>
-        <url>https://maven.pkg.github.com/MCmoderSD/OpenAI-Utility</url>
-    </repository>
-</repositories>
-
 <dependencies>
     <dependency>
         <groupId>de.MCmoderSD</groupId>
         <artifactId>OpenAI</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </dependency>
 </dependencies>
 ```
 
-After you have [configured](#Configuration) the Utility it is very easy to use. <br>
-
-You create a new instance of the OpenAI Utility and give it the config.json as JsonNode. <br>
-Then you can use the methods prompt and converse Methods to interact with the OpenAI API. <br>
-
 ## Configuration
 
-To use this Utility you need an OpenAI API Key and a ```config.json``` file in the ```resources``` folder. <br>
-The ```config.json``` file should look like this:
-
+You have to provide a JsonNode with the configuration for the Utility. <br>
+The configuration should look like this:
 ```json
 {
   "apiKey": "YOUR_API_KEY",
@@ -83,7 +64,7 @@ The ```config.json``` file should look like this:
 ```
 
 You can get the API key from [OpenAI](https://platform.openai.com/signup). <br>
-
+If you don't want to use one of the services, you can remove the configuration for it. <br>
 
 ### Chat Configuration
 - The **chatModel** is the model that the bot will use to generate the text. <br>
@@ -212,3 +193,114 @@ You can get the API key from [OpenAI](https://platform.openai.com/signup). <br>
   and repetitive. <br>
   Higher temperature results in more random completions. <br>
   The min value is 0 and the max value is 2. <br> <br>
+
+## Usage Example
+```java
+package de.MCmoderSD.main;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.theokanning.openai.image.ImageResult;
+
+import de.MCmoderSD.OpenAI.OpenAI;
+import de.MCmoderSD.OpenAI.enums.ImageModel;
+import de.MCmoderSD.OpenAI.modules.Chat;
+import de.MCmoderSD.OpenAI.modules.Image;
+import de.MCmoderSD.OpenAI.modules.Speech;
+import de.MCmoderSD.OpenAI.modules.Transcription;
+import de.MCmoderSD.jal.AudioFile;
+
+import java.util.HashSet;
+
+public class Main {
+
+    // Attributes
+    private static JsonNode config;
+
+    public Main() {
+
+        // Attributes
+        OpenAI openAI = new OpenAI(config);
+    }
+
+    public static void chatExample(OpenAI openAI) {
+
+        // Get Chat
+        Chat chat = openAI.getChat();
+
+        // Simple Prompt
+        String prompt = chat.prompt(
+                "MCmoderSD",                        // User
+                "Translate this text to German: ",  // Instruction
+                "Hello, how are you?",              // Prompt
+                1,                                  // Temperature
+                4096 ,                              // Max Tokens
+                1,                                  // Top P
+                1,                                  // Frequency Penalty
+                1                                   // Presence Penalty
+        );
+
+        // Conversation
+        String conversation = chat.converse(
+                1,                                  // Conversation ID
+                4,                                  // Max Turns
+                16384,                              // Max Tokens
+                "MCmoderSD",                        // User
+                "Translate this text to German: ",  // Instruction
+                "Hello, how are you?",              // Prompt
+                1,                                  // Temperature
+                4096 ,                              // Max Tokens
+                1,                                  // Top P
+                1,                                  // Frequency Penalty
+                1                                   // Presence Penalty
+        );
+
+        // Clear Conversation
+        chat.clearConversation(1);
+    }
+
+    public static void imageExample(OpenAI openAI) {
+
+        // Get Image
+        Image image = openAI.getImage();
+
+        // Image Prompt
+        HashSet<String> imageUrls = image.generate(
+                "MCmoderSD",                                        // User
+                "Generate a picture of a cat",                      // Prompt
+                1,                                                  // Amount
+                ImageModel.Resolution.RES_512x512.getResolution()   // Resolution
+        );
+    }
+
+    public static void speechExample(OpenAI openAI) {
+
+        // Get Speech
+        Speech speech = openAI.getSpeech();
+
+        // Speech Prompt
+        AudioFile audioFile = speech.tts(
+                "Hello, how are you",   // Input
+                "alloy",                // Voice
+                "wav",                  // Format
+                1                       // Speed
+        );
+
+        // Play Audio
+        audioFile.play();
+    }
+
+    public static void transcribeExample(OpenAI openAI, AudioFile input) {
+
+        // Get Transcription
+        Transcription transcription = openAI.getTranscription();
+
+        // Transcribe
+        String output = transcription.transcribe(
+                input,                              // Audio File
+                "Translate this text to German: ",  // Prompt
+                "en",                               // Language
+                1                                   // Temperature
+        );
+    }
+}
+```

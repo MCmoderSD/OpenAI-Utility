@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.MCmoderSD</groupId>
-    <artifactId>OpenAI</artifactId>
-    <version>1.0.0</version>
+    <artifactId>openai</artifactId>
+    <version>1.0.1</version>
 
     <name>OpenAI-Utility</name>
     <description>A Java utility for the OpenAI API services</description>
 
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
+            <id>OpenAI-Utility</id>
+            <name>GitHub MCmoderSD Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/MCmoderSD/OpenAI-Utility</url>
         </repository>
     </distributionManagement>
@@ -28,7 +28,7 @@
 
     <repositories>
         <repository>
-            <id>github</id>
+            <id>OpenAI-Utility</id>
             <url>https://maven.pkg.github.com/MCmoderSD/OpenAI-Utility</url>
         </repository>
     </repositories>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>de.MCmoderSD</groupId>
             <artifactId>jal</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
 
         <!-- OpenAI Service -->
@@ -56,7 +56,6 @@
             <version>20240303</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -75,4 +74,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

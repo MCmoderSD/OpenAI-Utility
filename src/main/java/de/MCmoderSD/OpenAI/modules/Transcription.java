@@ -93,6 +93,11 @@ public class Transcription {
         return result.getText();
     }
 
+    // Transcribe
+    public String transcribe(byte[] audioData, String prompt, String language, double temperature) {
+        return transcribe(new AudioFile(audioData), prompt, language, temperature);
+    }
+
     // SHA-256
     private static String getSHA256(byte[] data) {
         try {
