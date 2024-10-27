@@ -1,6 +1,6 @@
 package de.MCmoderSD.OpenAI.enums;
 
-import de.MCmoderSD.jal.AudioFile;
+import de.MCmoderSD.JavaAudioLibrary.AudioFile;
 
 import java.io.File;
 import java.math.BigDecimal;

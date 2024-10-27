@@ -7,7 +7,7 @@ import com.theokanning.openai.service.OpenAiService;
 
 import de.MCmoderSD.OpenAI.enums.TTSModel;
 
-import de.MCmoderSD.jal.AudioFile;
+import de.MCmoderSD.JavaAudioLibrary.AudioFile;
 
 import okhttp3.ResponseBody;
 

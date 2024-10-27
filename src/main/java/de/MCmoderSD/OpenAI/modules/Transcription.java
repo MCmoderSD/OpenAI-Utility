@@ -8,9 +8,10 @@ import com.theokanning.openai.service.OpenAiService;
 
 import de.MCmoderSD.OpenAI.enums.TranscriptionModel;
 
-import de.MCmoderSD.jal.AudioFile;
+import de.MCmoderSD.JavaAudioLibrary.AudioFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -78,7 +79,12 @@ public class Transcription {
         String path = String.format("%s/.%s", tmpDir, fileName);
 
         // Export Audio File
-        File file = audioFile.exportToWav(path);
+        File file = null;
+        try {
+            file = audioFile.export(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Check Parameters
         if (disprove(file, language, temperature)) return null;
