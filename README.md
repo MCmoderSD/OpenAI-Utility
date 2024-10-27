@@ -15,7 +15,7 @@ First you need to add the dependency to your ```pom.xml``` file:
     <dependency>
         <groupId>de.MCmoderSD</groupId>
         <artifactId>OpenAI</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </dependency>
 </dependencies>
 ```

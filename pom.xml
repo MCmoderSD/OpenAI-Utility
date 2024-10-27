@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>openai</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <name>OpenAI-Utility</name>
     <description>A Java utility for the OpenAI API services</description>
@@ -20,18 +20,10 @@
     </distributionManagement>
 
     <properties>
-        <gpg.skip>true</gpg.skip>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>OpenAI-Utility</id>
-            <url>https://maven.pkg.github.com/MCmoderSD/OpenAI-Utility</url>
-        </repository>
-    </repositories>
 
     <dependencies>
 
@@ -39,7 +31,7 @@
         <dependency>
             <groupId>de.MCmoderSD</groupId>
             <artifactId>jal</artifactId>
-            <version>1.0.4</version>
+            <version>1.1.1</version>
         </dependency>
 
         <!-- OpenAI Service -->
