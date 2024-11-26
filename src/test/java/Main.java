@@ -1,60 +1,90 @@
 import com.fasterxml.jackson.databind.JsonNode;
-
+import de.MCmoderSD.JavaAudioLibrary.AudioFile;
 import de.MCmoderSD.OpenAI.OpenAI;
-import de.MCmoderSD.OpenAI.enums.ImageModel;
 import de.MCmoderSD.OpenAI.modules.Chat;
 import de.MCmoderSD.OpenAI.modules.Image;
 import de.MCmoderSD.OpenAI.modules.Speech;
 import de.MCmoderSD.OpenAI.modules.Transcription;
-import de.MCmoderSD.JavaAudioLibrary.AudioFile;
+import de.MCmoderSD.json.JsonUtility;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 public class Main {
 
-    // Attributes
-    private static JsonNode config;
+    public static void main(String[] args) throws InterruptedException, IOException, URISyntaxException {
 
-    public Main() {
+        // Load Config
+        JsonNode config = JsonUtility.loadJson("/config.json", false);
 
-        // Attributes
+        // Initialize OpenAI
         OpenAI openAI = new OpenAI(config);
+        //chatExample(openAI);
+        //imageExample(openAI);
+        AudioFile testFile = speechExample(openAI);
+        transcriptionExample(openAI, testFile);
     }
 
-    public static void chatExample(OpenAI openAI) {
+    public static void chatExample(OpenAI openAI) throws InterruptedException {
 
         // Get Chat
         Chat chat = openAI.getChat();
 
         // Simple Prompt
-        String prompt = chat.prompt(
-                "MCmoderSD",                        // User
-                "Translate this text to German: ",  // Instruction
-                "Hello, how are you?",              // Prompt
-                1,                                  // Temperature
-                4096,                              // Max Tokens
-                1,                                  // Top P
-                1,                                  // Frequency Penalty
-                1                                   // Presence Penalty
-        );
+        String prompt = chat.prompt("How are you doing today?");
+        System.out.println(prompt + "\n");
 
-        // Conversation
-        String conversation = chat.converse(
-                1,                                  // Conversation ID
-                4,                                  // Max Turns
-                16384,                              // Max Tokens
-                "MCmoderSD",                        // User
-                "Translate this text to German: ",  // Instruction
-                "Hello, how are you?",              // Prompt
-                1,                                  // Temperature
-                4096,                              // Max Tokens
-                1,                                  // Top P
-                1,                                  // Frequency Penalty
-                1                                   // Presence Penalty
-        );
+        // Simple Prompt Stream
+        chat.promptStream("This is a test!").forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+        Thread.sleep(2000); // Wait for Stream to Finish
+        System.out.println("\n");
 
-        // Clear Conversation
-        chat.clearConversation(1);
+        // Custom Prompt
+        String customPrompt = chat.prompt(
+                "MCmoderSD",                                // User
+                "Translate the following text into German: ",   // Prompt
+                "Hello, how are you?",                          // Text
+                1d,                                             // Temperature
+                4096,                                           // Max Tokens
+                1d,                                             // Top P
+                1d,                                             // Frequency Penalty
+                1d                                              // Presence Penalty
+        );
+        System.out.println(customPrompt + "\n");
+
+        // Custom Prompt Stream
+        chat.promptStream(
+                "MCmoderSD",                                // User
+                "Translate the following text into French: ",   // Prompt
+                "Hello, how are you?",                          // Text
+                1d,                                             // Temperature
+                4096,                                           // Max Tokens
+                1d,                                             // Top P
+                1d,                                             // Frequency Penalty
+                1d                                              // Presence Penalty
+        ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+        Thread.sleep(2000); // Wait for Stream to Finish
+        System.out.println("\n");
+
+        // Start simple Conversation
+        var id = 1; // Conversation ID
+        chat.converse(id, "Hello, my name is MCmoderSD");
+
+        // Continue Conversation as custom stream
+        chat.converseStream(
+                id,                 // Conversation ID
+                5,                  // Max Calls
+                16384,              // Max Tokens spend total
+                "MCmoderSD",        // User
+                null,               // Instruction
+                "What is my name?", // Message
+                1d,                 // Temperature
+                4096,               // Max Tokens
+                1d,                 // Top P
+                1d,                 // Frequency Penalty
+                1d                  // Presence Penalty
+        ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
     }
 
     public static void imageExample(OpenAI openAI) {
@@ -62,43 +92,57 @@ public class Main {
         // Get Image
         Image image = openAI.getImage();
 
-        // Image Prompt
-        HashSet<String> imageUrls = image.generate(
-                "MCmoderSD",                                        // User
-                "Generate a picture of a cat",                      // Prompt
-                1,                                                  // Amount
-                ImageModel.Resolution.RES_512x512.getResolution()   // Resolution
+        // Generate Image
+        HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
+        imageUrls.forEach(System.out::println);
+
+        // Generate Image with custom parameters
+        HashSet<String> customImageUrls = image.generate(
+                "MCmoderSD",            // User
+                "A cat, eating a donut",    // Prompt
+                1,                          // Amount
+                "standard",                 // Quality
+                "256x256",                  // Resolution
+                "vivid"                     // Style
         );
+        customImageUrls.forEach(System.out::println);
     }
 
-    public static void speechExample(OpenAI openAI) {
+    public static AudioFile speechExample(OpenAI openAI) throws InterruptedException {
 
         // Get Speech
         Speech speech = openAI.getSpeech();
 
-        // Speech Prompt
-        AudioFile audioFile = speech.speak(
-                "Hello, how are you",   // Input
-                "alloy",                // Voice
-                "wav",                  // Format
-                1                       // Speed
-        );
+        // Generate TTS
+        speech.speak("Hey, how are you?").play();
+        Thread.sleep(2000); // Wait for Audio to Finish
 
-        // Play Audio
-        audioFile.play();
+        // Generate TTS with custom parameters
+        return speech.speak(
+                "This is a test recording",     // Text
+                "onyx",                             // Voice
+                "wav",                              // Format
+                1d                                  // Speed
+        );
     }
 
-    public static void transcribeExample(OpenAI openAI, AudioFile input) {
+    public static void transcriptionExample(OpenAI openAI, AudioFile audio) {
 
         // Get Transcription
         Transcription transcription = openAI.getTranscription();
 
-        // Transcribe
-        String output = transcription.transcribe(
-                input,                              // Audio File
-                "Translate this text to German: ",  // Prompt
-                "en",                               // Language
-                1                                   // Temperature
+        // Transcribe Audio
+        String text = transcription.transcribe(audio);
+        System.out.println(text);
+
+        // Transcribe Audio with custom parameters
+        text = transcription.transcribe(
+                audio,                          // Audio
+                "What is the following text?",  // Prompt
+                "en",                           // Language
+                1d                              // Temperature
         );
+
+        System.out.println(text);
     }
 }

@@ -37,3 +37,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### JsonUtility ###
+src/test/java/de
+
+### Resource files ###
+src/test/resources/config.json

@@ -57,8 +57,10 @@ public class Chat {
     }
 
     public static String getContent(ChatCompletionChunk chunk) {
-        if (chunk == null) return null;
-        else return chunk.getChoices().getFirst().getMessage().getContent();
+        if (chunk == null) return "";
+        String content = chunk.getChoices().getFirst().getMessage().getContent();
+        if (content == null) return "";
+        else return content;
     }
 
     public static ChatMessage addMessage(String text, boolean system) {
@@ -301,11 +303,11 @@ public class Chat {
         messages.add(addMessage(prompt, false));
 
         // Get response
-        return chatCompletionRequestStream(user, messages, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
+        return chatCompletionRequestStream(user, messages, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty).autoConnect();
     }
 
-    public String promptStream(String instruction, String prompt) {
-        return prompt(null, instruction, prompt, null, null, null, null, null);
+    public Flowable<ChatCompletionChunk> promptStream(String instruction, String prompt) {
+        return promptStream(null, instruction, prompt, null, null, null, null, null);
     }
 
     public Flowable<ChatCompletionChunk> promptStream(String prompt) {
@@ -384,7 +386,7 @@ public class Chat {
         boolean conversationLimit = filterMessages(conversation, false).size() >= maxConversationCalls;
 
         // Continue conversation
-        if (!(tokenSpendingLimit || conversationLimit)) return continueConversationStream(id, user, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
+        if (!(tokenSpendingLimit || conversationLimit)) return continueConversationStream(id, user, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty).autoConnect();
         else conversations.remove(id);
         return null;
     }
