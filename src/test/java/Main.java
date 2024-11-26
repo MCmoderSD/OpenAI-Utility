@@ -24,10 +24,10 @@ public class Main {
         OpenAI openAI = new OpenAI(config);
 
         // Examples
-        chatExample(openAI);
+        //chatExample(openAI);
         imageExample(openAI);
-        AudioFile testFile = speechExample(openAI);
-        transcriptionExample(openAI, testFile);
+        //AudioFile testFile = speechExample(openAI);
+        //transcriptionExample(openAI, testFile);
     }
 
     public static void chatExample(OpenAI openAI) throws InterruptedException {
@@ -100,14 +100,14 @@ public class Main {
         HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
         imageUrls.forEach(System.out::println);
 
-        // Generate Image with custom parameters
+        // Generate Image with custom parameters (DALL-E 2)
         HashSet<String> customImageUrls = image.generate(
                 "MCmoderSD",            // User
                 "A cat, eating a donut",    // Prompt
                 1,                          // Amount
-                "standard",                 // Quality
-                "256x256",                  // Resolution
-                "vivid"                     // Style
+                null,                       // Quality
+                "512x512",                  // Resolution
+                null                        // Style
         );
         customImageUrls.forEach(System.out::println);
     }

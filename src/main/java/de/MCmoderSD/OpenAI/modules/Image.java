@@ -36,26 +36,61 @@ public class Image {
     }
 
     // Create Speech
-    private ImageResult imageRequest(String user, String prompt, int amount, String quality, String resolution, String style) {
+    private ImageResult imageRequest(String user, String prompt, String quality, String resolution, String style) {
 
         // Request
         CreateImageRequest request = CreateImageRequest
-                .builder()                  // Builder
-                .model(model.getModel())    // Model
-                .user(user)                 // User
-                .prompt(prompt)             // Prompt
-                .n(amount)                  // Amount
-                .quality(quality)           // Quality
-                .size(resolution)           // Resolution
-                .style(style)               // Style
-                .build();                   // Build
+                .builder()                              // Builder
+                .model(ImageModel.DALL_E_3.getModel())  // Model
+                .user(user)                             // User
+                .prompt(prompt)                         // Prompt
+                .quality(quality)                       // Quality
+                .size(resolution)                       // Resolution
+                .style(style)                           // Style
+                .build();                               // Build
+
+        // Result
+        return service.createImage(request);
+    }
+
+    private ImageResult imageRequest(String user, String prompt, int amount, String resolution) {
+        // Request
+        CreateImageRequest request = CreateImageRequest
+                .builder()                              // Builder
+                .model(ImageModel.DALL_E_2.getModel())  // Model
+                .user(user)                             // User
+                .prompt(prompt)                         // Prompt
+                .n(amount)                              // Amount
+                .size(resolution)                       // Resolution
+                .build();                               // Build
 
         // Result
         return service.createImage(request);
     }
 
     // Check Parameters
-    public boolean disprove(String user, String prompt, Integer amount, String quality, String resolution, String style) {
+    public boolean disprove(String user, String prompt, String quality, String resolution, String style) {
+
+        // Check Username
+        if (user == null) throw new IllegalArgumentException("User name is null");
+        if (user.isBlank()) throw new IllegalArgumentException("User name is empty");
+
+        // Check Prompt
+        if (prompt == null) throw new IllegalArgumentException("Prompt is null");
+        if (prompt.isBlank()) throw new IllegalArgumentException("Prompt is empty");
+
+        // Check Variables
+        if (!model.checkPrompt(prompt)) throw new IllegalArgumentException("Invalid prompt");
+        if (!model.checkQuality(quality)) throw new IllegalArgumentException("Invalid quality");
+        if (!model.checkResolution(resolution)) throw new IllegalArgumentException("Invalid resolution");
+        if (!model.checkStyle(style)) throw new IllegalArgumentException("Invalid style");
+
+        // Disapprove parameters
+        return false;
+    }
+
+    // Check Parameters
+    public boolean disprove(String user, String prompt, int amount, String resolution) {
 
         // Check Username
         if (user == null) throw new IllegalArgumentException("User name is null");
@@ -68,9 +103,7 @@ public class Image {
         // Check Variables
         if (!model.checkPrompt(prompt)) throw new IllegalArgumentException("Invalid prompt");
         if (!model.checkAmount(amount)) throw new IllegalArgumentException("Invalid amount");
-        if (!model.checkQuality(quality)) throw new IllegalArgumentException("Invalid quality");
         if (!model.checkResolution(resolution)) throw new IllegalArgumentException("Invalid resolution");
-        if (!model.checkStyle(style)) throw new IllegalArgumentException("Invalid style");
 
         // Disapprove parameters
         return false;
@@ -85,10 +118,12 @@ public class Image {
         quality = quality == null ? config.get("quality").asText() : quality;
         resolution = resolution == null ? config.get("resolution").asText() : resolution;
         style = style == null ? config.get("style").asText() : style;
-        if (disprove(user, prompt, amount, quality, resolution, style)) throw new IllegalArgumentException("Invalid parameters");
+        if (model.equals(ImageModel.DALL_E_3)) {
+            if (disprove(user, prompt, quality, resolution, style)) throw new IllegalArgumentException("Invalid parameters");
+        } else if (disprove(user, prompt, amount, resolution)) throw new IllegalArgumentException("Invalid parameters");
 
         // Request Image
-        ImageResult result = imageRequest(user, prompt, amount, quality, resolution, style);
+        ImageResult result = model.equals(ImageModel.DALL_E_3) ? imageRequest(user, prompt, quality, resolution, style) : imageRequest(user, prompt, amount, resolution);
 
         // Return Images
         HashSet<String> images = new HashSet<>();

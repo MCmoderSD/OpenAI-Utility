@@ -29,7 +29,7 @@ public enum ImageModel {
         this.resolutions = new HashSet<>();
         style = new HashSet<>();
         minAmount = 1;
-        maxAmount = 10;
+        maxAmount = model.equals("dall-e-2") ? 1 : 10;
 
         // Set models
         models.add("dall-e-2");
@@ -43,10 +43,10 @@ public enum ImageModel {
         Collections.addAll(this.resolutions, resolutions);
 
         if (model.equals("dall-e-2")) {
-            minCharacters = 0;
+            minCharacters = 1;
             maxCharacters = 1000;
         } else {
-            minCharacters = 0;
+            minCharacters = 1;
             maxCharacters = 4000;
         }
 

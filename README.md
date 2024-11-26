@@ -3,11 +3,17 @@
 
 
 ## Description
-This is a Java Utility for the OpenAI API Services. <br>
-It uses the [OpenAI Library](https://github.com/TheoKanning/openai-java) from [TheoKanning](https://github.com/TheoKanning/) which is sadly not maintained anymore. <br>
-The goal of this Utility is to provide a straightforward way to interact with the OpenAI API Services. <br>
+This **Java Utility** provides seamless integration with **OpenAI API Services**, offering a straightforward approach to interact with various OpenAI features.
 
-Currently, it supports the Chat, Image, Speech and Transcription API services. <br>
+The utility leverages the [OpenAI Library](https://github.com/TheoKanning/openai-java) by [Theo Kanning](https://github.com/TheoKanning/). While this library is no longer actively maintained, this utility extends its functionality to ensure compatibility with the latest OpenAI services.
+
+### Supported Features:
+- **Chat API**: Generate conversational responses with advanced models.
+- **Image API**: Create stunning visuals using OpenAI's image generation tools.
+- **Speech API**: Convert text to speech with customizable voices and formats.
+- **Transcription API**: Accurately transcribe audio files with support for multiple languages.
+
+This utility simplifies complex interactions, making it easier than ever to harness the power of OpenAI in your Java projects.
 
 
 ## Usage
@@ -25,9 +31,9 @@ Make sure you have the JitPack repository added to your `pom.xml` file:
 Add the dependency to your `pom.xml` file:
 ```xml
 <dependency>
-  <groupId>com.github.MCmoderSD</groupId>
-  <artifactId>OpenAI-Utility</artifactId>
-  <version>1.1.0</version>
+    <groupId>com.github.MCmoderSD</groupId>
+    <artifactId>OpenAI-Utility</artifactId>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -78,6 +84,8 @@ Note: <br>
 - The `user` field is optional and can be used to identify the user for monitoring purposes. <br>
 - Remove any section if you don't intend to use that service.
 
+<hr>
+
 ### Chat Configuration
 
 | **Field**             | **Description**                                                                 |
@@ -92,7 +100,7 @@ Note: <br>
 | presencePenalty       | Discourages repeating words from the conversation. Values range from `0` to `1` |
 | instruction           | Provides guidance for the bot's behavior.                                       |
 
-### Chat Models and Pricing
+#### Chat Models and Pricing
 | **Model**                                            | **Pricing**                                                                                    | **Max Output Tokens** |
 |:-----------------------------------------------------|:-----------------------------------------------------------------------------------------------|:---------------------:|
 | gpt-4o <br> gpt-4o-2024-11-20 <br> gpt-4o-2024-08-06 | $2.50 / 1M input tokens <br> \$1.25 / 1M cached input tokens <br> \$10.00 / 1M output tokens   |     16,384 tokens     |
@@ -112,7 +120,7 @@ Note: <br>
 | resolution | Image size: `256x256`, `512x512`, `1024x1024`, `1024x1792`, `1792x1024`. |
 | style      | Image style: `vivid` or `natural`.                                       |
 
-### Image Models and Pricing
+#### Image Models and Pricing
 | **Model** | **Quality** | **Resolution**                        | **Pricing**                                                      |
 |:----------|:-----------:|:--------------------------------------|:-----------------------------------------------------------------|
 | dall-e-2  |             | 256x256 <br/> 512x512 <br/> 1024x1024 | \$0.016 per Image <br/> \$0.018 per Image <br/> $0.020 per Image |
@@ -129,7 +137,7 @@ Note: <br>
 | format    | Audio file format: `mp3`, `opus`, `aac`, `flac`, `wav`, `pcm`. Currently only `wav` supported |
 | speed     | Speech speed. Ranges from `0.25` (slowest) to `4` (fastest). Default is `1`.                  |
 
-### Speech Pricing
+#### Speech Pricing
 | **Model** | **Pricing**            | 
 |:----------|:-----------------------|
 | tts-1     | $15.00 / 1M characters |
@@ -138,8 +146,6 @@ Note: <br>
 <hr>
 
 ### Transcription Configuration
-
-### Speech Configuration
 | **Field**   | **Description**                                             |
 |:------------|:------------------------------------------------------------|
 | model       | Transcription model: `whisper-1`.                           |
@@ -147,7 +153,7 @@ Note: <br>
 | language    | Language of the audio (e.g., `en` for English).             |
 | temperature | Controls randomness: `0` (deterministic) to `2` (creative). |
 
-### Transcription Pricing
+#### Transcription Pricing
 | **Model** | **Pricing**                                     |
 |:---------:|:------------------------------------------------|
 | whisper-1 | $0.006 / minute (rounded to the nearest second) |
@@ -173,140 +179,140 @@ import java.util.HashSet;
 
 public class Main {
 
-  public static void main(String[] args) throws InterruptedException, IOException, URISyntaxException {
+    public static void main(String[] args) throws InterruptedException, IOException, URISyntaxException {
 
-    // Load Config
-    JsonNode config = JsonUtility.loadJson("/config.json", false);
+        // Load Config
+        JsonNode config = JsonUtility.loadJson("/config.json", false);
 
-    // Initialize OpenAI
-    OpenAI openAI = new OpenAI(config);
+        // Initialize OpenAI
+        OpenAI openAI = new OpenAI(config);
 
-    // Examples
-    chatExample(openAI);
-    imageExample(openAI);
-    AudioFile testFile = speechExample(openAI);
-    transcriptionExample(openAI, testFile);
-  }
+        // Examples
+        chatExample(openAI);
+        imageExample(openAI);
+        AudioFile testFile = speechExample(openAI);
+        transcriptionExample(openAI, testFile);
+    }
 
-  public static void chatExample(OpenAI openAI) throws InterruptedException {
+    public static void chatExample(OpenAI openAI) throws InterruptedException {
 
-    // Get Chat
-    Chat chat = openAI.getChat();
+        // Get Chat
+        Chat chat = openAI.getChat();
 
-    // Simple Prompt
-    String prompt = chat.prompt("How are you doing today?");
-    System.out.println(prompt + "\n");
+        // Simple Prompt
+        String prompt = chat.prompt("How are you doing today?");
+        System.out.println(prompt + "\n");
 
-    // Simple Prompt Stream
-    chat.promptStream("This is a test!").forEach(chunk -> System.out.print(Chat.getContent(chunk)));
-    Thread.sleep(2000); // Wait for Stream to Finish
-    System.out.println("\n");
+        // Simple Prompt Stream
+        chat.promptStream("This is a test!").forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+        Thread.sleep(2000); // Wait for Stream to Finish
+        System.out.println("\n");
 
-    // Custom Prompt
-    String customPrompt = chat.prompt(
-            "MCmoderSD",                                // User
-            "Translate the following text into German: ",   // Prompt
-            "Hello, how are you?",                          // Text
-            1d,                                             // Temperature
-            4096,                                           // Max Tokens
-            1d,                                             // Top P
-            1d,                                             // Frequency Penalty
-            1d                                              // Presence Penalty
-    );
-    System.out.println(customPrompt + "\n");
+        // Custom Prompt
+        String customPrompt = chat.prompt(
+                "MCmoderSD",                                // User
+                "Translate the following text into German: ",   // Prompt
+                "Hello, how are you?",                          // Text
+                1d,                                             // Temperature
+                4096,                                           // Max Tokens
+                1d,                                             // Top P
+                1d,                                             // Frequency Penalty
+                1d                                              // Presence Penalty
+        );
+        System.out.println(customPrompt + "\n");
 
-    // Custom Prompt Stream
-    chat.promptStream(
-            "MCmoderSD",                                // User
-            "Translate the following text into French: ",   // Prompt
-            "Hello, how are you?",                          // Text
-            1d,                                             // Temperature
-            4096,                                           // Max Tokens
-            1d,                                             // Top P
-            1d,                                             // Frequency Penalty
-            1d                                              // Presence Penalty
-    ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
-    Thread.sleep(2000); // Wait for Stream to Finish
-    System.out.println("\n");
+        // Custom Prompt Stream
+        chat.promptStream(
+                "MCmoderSD",                                // User
+                "Translate the following text into French: ",   // Prompt
+                "Hello, how are you?",                          // Text
+                1d,                                             // Temperature
+                4096,                                           // Max Tokens
+                1d,                                             // Top P
+                1d,                                             // Frequency Penalty
+                1d                                              // Presence Penalty
+        ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+        Thread.sleep(2000); // Wait for Stream to Finish
+        System.out.println("\n");
 
-    // Start simple Conversation
-    var id = 1; // Conversation ID
-    chat.converse(id, "Hello, my name is MCmoderSD");
+        // Start simple Conversation
+        var id = 1; // Conversation ID
+        chat.converse(id, "Hello, my name is MCmoderSD");
 
-    // Continue Conversation as custom stream
-    chat.converseStream(
-            id,                 // Conversation ID
-            5,                  // Max Calls
-            16384,              // Max Tokens spend total
-            "MCmoderSD",        // User
-            null,               // Instruction
-            "What is my name?", // Message
-            1d,                 // Temperature
-            4096,               // Max Tokens
-            1d,                 // Top P
-            1d,                 // Frequency Penalty
-            1d                  // Presence Penalty
-    ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
-  }
+        // Continue Conversation as custom stream
+        chat.converseStream(
+                id,                 // Conversation ID
+                5,                  // Max Calls
+                16384,              // Max Tokens spend total
+                "MCmoderSD",        // User
+                null,               // Instruction
+                "What is my name?", // Message
+                1d,                 // Temperature
+                4096,               // Max Tokens
+                1d,                 // Top P
+                1d,                 // Frequency Penalty
+                1d                  // Presence Penalty
+        ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+    }
 
-  public static void imageExample(OpenAI openAI) {
+    public static void imageExample(OpenAI openAI) {
 
-    // Get Image
-    Image image = openAI.getImage();
+        // Get Image
+        Image image = openAI.getImage();
 
-    // Generate Image
-    HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
-    imageUrls.forEach(System.out::println);
+        // Generate Image
+        HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
+        imageUrls.forEach(System.out::println);
 
-    // Generate Image with custom parameters
-    HashSet<String> customImageUrls = image.generate(
-            "MCmoderSD",            // User
-            "A cat, eating a donut",    // Prompt
-            1,                          // Amount
-            "standard",                 // Quality
-            "256x256",                  // Resolution
-            "vivid"                     // Style
-    );
-    customImageUrls.forEach(System.out::println);
-  }
+        // Generate Image with custom parameters
+        HashSet<String> customImageUrls = image.generate(
+                "MCmoderSD",            // User
+                "A cat, eating a donut",    // Prompt
+                1,                          // Amount
+                "standard",                 // Quality
+                "256x256",                  // Resolution
+                "vivid"                     // Style
+        );
+        customImageUrls.forEach(System.out::println);
+    }
 
-  public static AudioFile speechExample(OpenAI openAI) throws InterruptedException {
+    public static AudioFile speechExample(OpenAI openAI) throws InterruptedException {
 
-    // Get Speech
-    Speech speech = openAI.getSpeech();
+        // Get Speech
+        Speech speech = openAI.getSpeech();
 
-    // Generate TTS
-    speech.speak("Hey, how are you?").play();
-    Thread.sleep(2000); // Wait for Audio to Finish
+        // Generate TTS
+        speech.speak("Hey, how are you?").play();
+        Thread.sleep(2000); // Wait for Audio to Finish
 
-    // Generate TTS with custom parameters
-    return speech.speak(
-            "This is a test recording",     // Text
-            "onyx",                             // Voice
-            "wav",                              // Format
-            1d                                  // Speed
-    );
-  }
+        // Generate TTS with custom parameters
+        return speech.speak(
+                "This is a test recording",     // Text
+                "onyx",                             // Voice
+                "wav",                              // Format
+                1d                                  // Speed
+        );
+    }
 
-  public static void transcriptionExample(OpenAI openAI, AudioFile audio) {
+    public static void transcriptionExample(OpenAI openAI, AudioFile audio) {
 
-    // Get Transcription
-    Transcription transcription = openAI.getTranscription();
+        // Get Transcription
+        Transcription transcription = openAI.getTranscription();
 
-    // Transcribe Audio
-    String text = transcription.transcribe(audio);
-    System.out.println(text);
+        // Transcribe Audio
+        String text = transcription.transcribe(audio);
+        System.out.println(text);
 
-    // Transcribe Audio with custom parameters
-    text = transcription.transcribe(
-            audio,                          // Audio
-            "What is the following text?",  // Prompt
-            "en",                           // Language
-            1d                              // Temperature
-    );
+        // Transcribe Audio with custom parameters
+        text = transcription.transcribe(
+                audio,                          // Audio
+                "What is the following text?",  // Prompt
+                "en",                           // Language
+                1d                              // Temperature
+        );
 
-    System.out.println(text);
-  }
+        System.out.println(text);
+    }
 }
 ```
 For more examples, you can check the [YEPPTalk](https://github.com/MCmoderSD/YEPPTalk) project. <br>
