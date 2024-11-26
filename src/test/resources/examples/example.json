@@ -3,7 +3,7 @@
   "apiKey": "YOUR_API_KEY",
 
   "chat": {
-    "model": "gpt-4o-mini-2024-11-20",
+    "model": "gpt-4o-2024-11-20",
     "maxConversationCalls": 10,
     "maxTokenSpendingLimit": 8192,
     "temperature": 1,
@@ -31,7 +31,7 @@
   "transcription": {
     "model": "whisper-1",
     "prompt": "Transcribe the following audio file to German.",
-    "language": "German",
+    "language": "de",
     "temperature": 1
   }
 }

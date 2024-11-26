@@ -1,11 +1,13 @@
 import com.fasterxml.jackson.databind.JsonNode;
+
+import de.MCmoderSD.json.JsonUtility;
 import de.MCmoderSD.JavaAudioLibrary.AudioFile;
+
 import de.MCmoderSD.OpenAI.OpenAI;
 import de.MCmoderSD.OpenAI.modules.Chat;
 import de.MCmoderSD.OpenAI.modules.Image;
 import de.MCmoderSD.OpenAI.modules.Speech;
 import de.MCmoderSD.OpenAI.modules.Transcription;
-import de.MCmoderSD.json.JsonUtility;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,8 +22,10 @@ public class Main {
 
         // Initialize OpenAI
         OpenAI openAI = new OpenAI(config);
-        //chatExample(openAI);
-        //imageExample(openAI);
+
+        // Examples
+        chatExample(openAI);
+        imageExample(openAI);
         AudioFile testFile = speechExample(openAI);
         transcriptionExample(openAI, testFile);
     }

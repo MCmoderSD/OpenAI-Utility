@@ -9,6 +9,7 @@ The goal of this Utility is to provide a straightforward way to interact with th
 
 Currently, it supports the Chat, Image, Speech and Transcription API services. <br>
 
+
 ## Usage
 
 ### Maven
@@ -32,15 +33,14 @@ Add the dependency to your `pom.xml` file:
 
 
 ## Configuration
-You have to provide a JsonNode with the configuration for the Utility.<br>
-The configuration should look like this:
+To configure the utility, provide a `JsonNode` with the following structure:
 ```json
 {
   "user": "YOUR_USERNAME",
   "apiKey": "YOUR_API_KEY",
 
   "chat": {
-    "model": "gpt-4o-mini-2024-07-18",
+    "model": "gpt-4o-2024-11-20",
     "maxConversationCalls": 10,
     "maxTokenSpendingLimit": 8192,
     "temperature": 1,
@@ -68,213 +68,185 @@ The configuration should look like this:
   "transcription": {
     "model": "whisper-1",
     "prompt": "Transcribe the following audio file to German.",
-    "language": "German",
+    "language": "de",
     "temperature": 1
   }
 }
 ```
-
-You can get the API key from [OpenAI](https://platform.openai.com/signup). <br>
-The **use
-A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse.
-If you don't want to use one of the services, you can remove the configuration for it. <br>
+Note: <br>
+- Obtain your API key from [OpenAI](https://platform.openai.com/signup). <br>
+- The `user` field is optional and can be used to identify the user for monitoring purposes. <br>
+- Remove any section if you don't intend to use that service.
 
 ### Chat Configuration
-- The **chatModel** is the model that the bot will use to generate the text. <br>
-  The available models are: <br>
 
-| **Model**              | **Pricing**                                                                                    | **Max Output Tokens** |
-|:-----------------------|:-----------------------------------------------------------------------------------------------|:---------------------:|
-| gpt-4o                 | $2.50 / 1M input tokens <br> \$1.25 / 1M cached input tokens <br> \$10.00 / 1M output tokens   |     16,384 tokens     |
-| gpt-4o-2024-11-20      | $2.50 / 1M input tokens <br> \$1.25 / 1M cached input tokens <br> \$10.00 / 1M output tokens   |     16,384 tokens     |
-| gpt-4o-2024-08-06      | $2.50 / 1M input tokens <br> \$1.25 / 1M cached input tokens <br> \$10.00 / 1M output tokens   |     16,384 tokens     |
-| gpt-4o-2024-05-13      | $5.00 / 1M input tokens <br> \$15.00 / 1M output tokens                                        |     16,384 tokens     |
-| chatgpt-4o-latest      | $5.00 / 1M input tokens <br> \$15.00 / 1M output tokens                                        |     4,096 tokens      |
-| gpt-4o-mini            | $0.150 / 1M input tokens <br> \$0.075 / 1M cached input tokens <br> \$0.600 / 1M output tokens |     16,384 tokens     |
-| gpt-4o-mini-2024-07-18 | $0.150 / 1M input tokens <br> \$0.075 / 1M cached input tokens <br> \$0.600 / 1M output tokens |     16,384 tokens     |
-| o1-preview             | $15.00 / 1M input tokens <br> \$7.50 / 1M cached input tokens <br> \$60.00 / 1M output tokens  |     32,768 tokens     |
-| o1-preview-2024-09-12  | $15.00 / 1M input tokens <br> \$7.50 / 1M cached input tokens <br> \$60.00 / 1M output tokens  |     32,768 tokens     |
-| o1-mini                | $3.00 / 1M input tokens <br> \$1.50 / 1M cached input tokens <br> \$12.00 / 1M output tokens   |     65,536 tokens     |
-| o1-mini-2024-09-12     | $3.00 / 1M input tokens <br> \$1.50 / 1M cached input tokens <br> \$12.00 / 1M output tokens   |     65,536 tokens     |
+| **Field**             | **Description**                                                                 |
+|:----------------------|:--------------------------------------------------------------------------------|
+| model                 | Model used for generating text. See available models and their pricing below.   |
+| maxConversationCalls  | Maximum number of calls per conversation.                                       |
+| maxTokenSpendingLimit | Maximum tokens allowed per conversation.                                        |
+| temperature           | Controls randomness: `0` (deterministic) to `2` (creative).                     |
+| maxOutputTokens       | Maximum tokens in a response. So 500 characters are approximately 125 tokens).  |
+| topP                  | Nucleus sampling: `0` (plain) to `1` (creative).                                |
+| frequencyPenalty      | Reduces repetition of words. Values range from `0` to `1`.                      |
+| presencePenalty       | Discourages repeating words from the conversation. Values range from `0` to `1` |
+| instruction           | Provides guidance for the bot's behavior.                                       |
 
-- The **maxConversationCalls** is the limit of calls per conversation. <br>
-  After the limit is reached, the conversation will end. <br>
+### Chat Models and Pricing
+| **Model**                                            | **Pricing**                                                                                    | **Max Output Tokens** |
+|:-----------------------------------------------------|:-----------------------------------------------------------------------------------------------|:---------------------:|
+| gpt-4o <br> gpt-4o-2024-11-20 <br> gpt-4o-2024-08-06 | $2.50 / 1M input tokens <br> \$1.25 / 1M cached input tokens <br> \$10.00 / 1M output tokens   |     16,384 tokens     |
+| gpt-4o-2024-05-13                                    | $5.00 / 1M input tokens <br> \$15.00 / 1M output tokens                                        |     16,384 tokens     |
+| chatgpt-4o-latest                                    | $5.00 / 1M input tokens <br> \$15.00 / 1M output tokens                                        |     4,096 tokens      |
+| gpt-4o-mini <br> gpt-4o-mini-2024-07-18              | $0.150 / 1M input tokens <br> \$0.075 / 1M cached input tokens <br> \$0.600 / 1M output tokens |     16,384 tokens     |
+| o1-preview <br> o1-preview-2024-09-12                | $15.00 / 1M input tokens <br> \$7.50 / 1M cached input tokens <br> \$60.00 / 1M output tokens  |     32,768 tokens     |
+| o1-mini <br> o1-mini-2024-09-12                      | $3.00 / 1M input tokens <br> \$1.50 / 1M cached input tokens <br> \$12.00 / 1M output tokens   |     65,536 tokens     |
 
-
-- The **maxTokenSpendingLimit** is the limit of tokens spent per conversation. <br>
-  After the limit is reached, the conversation will end. <br>
-
-
-- The **temperature** is the randomness of the text. <br>
-  Lowering results in less random completions. As the temperature approaches zero, the model will become deterministic
-  and repetitive. <br>
-  Higher temperature results in more random completions. <br>
-  The min value is 0 and the max value is 2. <br>
-
-
-- The **maxOutputTokens** is the maximum length of the response text. <br>
-  One token is roughly 4 characters for standard English text. <br>
-  The limit is 16,384 tokens, but it's recommended to use a value that is suitable for the use, on Twitch the message limit is 500 characters.
-  If you divide the limit by 4, you are an estimate the number of characters. <br>
-
-
-- The **topP** is the nucleus sampling. <br>
-  The lower the value, the more plain the text will be. <br>
-  The higher the value, the more creative the text will be. <br>
-  The min value is 0 and the max value is 1. <br>
-
-
-- The **frequencyPenalty** reduces the likelihood of repeating the same words in a response.
-  The higher the value, the less the bot will repeat itself. <br>
-  The min value is 0 and the max value is 1. <br>
-
-
-- The **presencePenalty** reduces the likelihood of mentioning words that have already appeared in the
-  conversation. <br>
-  The higher the value, the less the bot will repeat itself. <br>
-  The min value is 0 and the max value is 1. <br>
-
-
-- The **instruction** is the way the bot should behave and how he should reply to the prompt. <br>
-
+<hr>
 
 ### Image Configuration
+| **Field**  | **Description**                                                          |
+|:-----------|:-------------------------------------------------------------------------|
+| model      | Model used for generating images (`dall-e-2`,` dall-e-3`).               |
+| quality    | Image quality: `standard` or `hd` (only for `dall-e-3`).                 |
+| resolution | Image size: `256x256`, `512x512`, `1024x1024`, `1024x1792`, `1792x1024`. |
+| style      | Image style: `vivid` or `natural`.                                       |
 
-- The **imageModel** is the model that the bot will use to generate the image. <br>
-  The available models are: <br>
+### Image Models and Pricing
+| **Model** | **Quality** | **Resolution**                        | **Pricing**                                                      |
+|:----------|:-----------:|:--------------------------------------|:-----------------------------------------------------------------|
+| dall-e-2  |             | 256x256 <br/> 512x512 <br/> 1024x1024 | \$0.016 per Image <br/> \$0.018 per Image <br/> $0.020 per Image |
+| dall-e-3  |  standard   | 1024x1024 <br/> 1024x1792, 1792×1024  | \$0.040 per Image <br/> \$0.080 per Image                        |
+| dall-e-3  |     hd      | 1024x1024 <br/> 1024x1792, 1792×1024  | \$0.080 per Image <br/> \$0.120 per Image                        |
 
-| **Model** | **Quality** | **Resolution**                        | **Pricing**                                                |
-|:----------|:-----------:|:--------------------------------------|:-----------------------------------------------------------|
-| dall-e-2  |             | 256x256 <br/> 512x512 <br/> 1024x1024 | \$0.016 / Image <br/> \$0.018 / Image <br/> $0.020 / Image |
-| dall-e-3  |  standard   | 1024x1024 <br/> 1024x1792, 1792×1024  | \$0.040 / Image <br/> \$0.080 / Image                      |
-| dall-e-3  |     hd      | 1024x1024 <br/> 1024x1792, 1792×1024  | \$0.080 / Image <br/> \$0.120 / Image                      |
-
-
-- The **quality** is the quality of the image. <br>
-  The available qualities are standard and hd. <br>
-  The quality is only available for dall-e-3. <br>
-
-
-- The **resolution** is the resolution of the image. <br>
-  The available resolutions are 256x256, 512x512, 1024x1024, 1024x1792, and 1792x1024. <br>
-  The resolution 1024x1024 is available for all models. <br>
-  The resolution 256x256 and 512x512 are only available for dall-e-2. <br>
-  The resolution 1024x1792 and 1792x1024 are only available for dall-e-3. <br>
-
-
-- The **style** is the style of the image. <br>
-  The available styles are vivid and natural. <br>
-  The style is only available for dall-e-3. <br>
-  The default style is vivid. <br>
-
+<hr>
 
 ### Speech Configuration
+| **Field** | **Description**                                                                               |
+|:----------|:----------------------------------------------------------------------------------------------|
+| model     | Speech model: `tts-1` or `tts-1-hd`.                                                          |
+| voice     | Choose from voices: `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer`.                      |
+| format    | Audio file format: `mp3`, `opus`, `aac`, `flac`, `wav`, `pcm`. Currently only `wav` supported |
+| speed     | Speech speed. Ranges from `0.25` (slowest) to `4` (fastest). Default is `1`.                  |
 
-- The **ttsModel** is the model that the bot will use to generate the speech. <br>
-  The available models are: <br>
-
+### Speech Pricing
 | **Model** | **Pricing**            | 
 |:----------|:-----------------------|
 | tts-1     | $15.00 / 1M characters |
 | tts-1-hd  | $30.00 / 1M characters |
 
-- The **voice** is the voice that the bot will use to generate the speech. <br>
-  The available voices are alloy, echo, fable, onyx, nova, and shimmer. <br>
-
-
-- The **format** is the format of the audio file. <br>
-  The available formats are mp3, opus, aac, flac, wav, and pcm. <br>
-
-
-- The **speed** is the speed of the speech. <br>
-  The min value is 0.25 and the max value is 4, the default value is 1. <br> <br>
-
+<hr>
 
 ### Transcription Configuration
 
-- The **transcriptionModel** is the model that the bot will use to generate the transcription. <br>
-  The available models are: <br>
+### Speech Configuration
+| **Field**   | **Description**                                             |
+|:------------|:------------------------------------------------------------|
+| model       | Transcription model: `whisper-1`.                           |
+| prompt      | Guidance prompt for transcription.                          |
+| language    | Language of the audio (e.g., `en` for English).             |
+| temperature | Controls randomness: `0` (deterministic) to `2` (creative). |
 
+### Transcription Pricing
 | **Model** | **Pricing**                                     |
 |:---------:|:------------------------------------------------|
 | whisper-1 | $0.006 / minute (rounded to the nearest second) |
 
 
-- The **prompt** is the prompt that the model will use to generate the transcription. <br>
-
-
-- The **language** is the language of the audio. <br>
-
-
-- The **temperature** is the randomness of the transcription. <br>
-  Lowering results in less random completions. As the temperature approaches zero, the model will become deterministic
-  and repetitive. <br>
-  Higher temperature results in more random completions. <br>
-  The min value is 0 and the max value is 2. <br> <br>
-
 ## Usage Example
 
 ```java
-package de.MCmoderSD.main;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.theokanning.openai.image.ImageResult;
+
+import de.MCmoderSD.json.JsonUtility;
+import de.MCmoderSD.JavaAudioLibrary.AudioFile;
 
 import de.MCmoderSD.OpenAI.OpenAI;
-import de.MCmoderSD.OpenAI.enums.ImageModel;
 import de.MCmoderSD.OpenAI.modules.Chat;
 import de.MCmoderSD.OpenAI.modules.Image;
 import de.MCmoderSD.OpenAI.modules.Speech;
 import de.MCmoderSD.OpenAI.modules.Transcription;
-import de.MCmoderSD.jal.AudioFile;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 public class Main {
 
-  // Attributes
-  private static JsonNode config;
+  public static void main(String[] args) throws InterruptedException, IOException, URISyntaxException {
 
-  public Main() {
+    // Load Config
+    JsonNode config = JsonUtility.loadJson("/config.json", false);
 
-    // Attributes
+    // Initialize OpenAI
     OpenAI openAI = new OpenAI(config);
+
+    // Examples
+    chatExample(openAI);
+    imageExample(openAI);
+    AudioFile testFile = speechExample(openAI);
+    transcriptionExample(openAI, testFile);
   }
 
-  public static void chatExample(OpenAI openAI) {
+  public static void chatExample(OpenAI openAI) throws InterruptedException {
 
     // Get Chat
     Chat chat = openAI.getChat();
 
     // Simple Prompt
-    String prompt = chat.prompt(
-            "MCmoderSD",                        // User
-            "Translate this text to German: ",  // Instruction
-            "Hello, how are you?",              // Prompt
-            1,                                  // Temperature
-            4096,                              // Max Tokens
-            1,                                  // Top P
-            1,                                  // Frequency Penalty
-            1                                   // Presence Penalty
-    );
+    String prompt = chat.prompt("How are you doing today?");
+    System.out.println(prompt + "\n");
 
-    // Conversation
-    String conversation = chat.converse(
-            1,                                  // Conversation ID
-            4,                                  // Max Turns
-            16384,                              // Max Tokens
-            "MCmoderSD",                        // User
-            "Translate this text to German: ",  // Instruction
-            "Hello, how are you?",              // Prompt
-            1,                                  // Temperature
-            4096,                              // Max Tokens
-            1,                                  // Top P
-            1,                                  // Frequency Penalty
-            1                                   // Presence Penalty
-    );
+    // Simple Prompt Stream
+    chat.promptStream("This is a test!").forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+    Thread.sleep(2000); // Wait for Stream to Finish
+    System.out.println("\n");
 
-    // Clear Conversation
-    chat.clearConversation(1);
+    // Custom Prompt
+    String customPrompt = chat.prompt(
+            "MCmoderSD",                                // User
+            "Translate the following text into German: ",   // Prompt
+            "Hello, how are you?",                          // Text
+            1d,                                             // Temperature
+            4096,                                           // Max Tokens
+            1d,                                             // Top P
+            1d,                                             // Frequency Penalty
+            1d                                              // Presence Penalty
+    );
+    System.out.println(customPrompt + "\n");
+
+    // Custom Prompt Stream
+    chat.promptStream(
+            "MCmoderSD",                                // User
+            "Translate the following text into French: ",   // Prompt
+            "Hello, how are you?",                          // Text
+            1d,                                             // Temperature
+            4096,                                           // Max Tokens
+            1d,                                             // Top P
+            1d,                                             // Frequency Penalty
+            1d                                              // Presence Penalty
+    ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
+    Thread.sleep(2000); // Wait for Stream to Finish
+    System.out.println("\n");
+
+    // Start simple Conversation
+    var id = 1; // Conversation ID
+    chat.converse(id, "Hello, my name is MCmoderSD");
+
+    // Continue Conversation as custom stream
+    chat.converseStream(
+            id,                 // Conversation ID
+            5,                  // Max Calls
+            16384,              // Max Tokens spend total
+            "MCmoderSD",        // User
+            null,               // Instruction
+            "What is my name?", // Message
+            1d,                 // Temperature
+            4096,               // Max Tokens
+            1d,                 // Top P
+            1d,                 // Frequency Penalty
+            1d                  // Presence Penalty
+    ).forEach(chunk -> System.out.print(Chat.getContent(chunk)));
   }
 
   public static void imageExample(OpenAI openAI) {
@@ -282,46 +254,59 @@ public class Main {
     // Get Image
     Image image = openAI.getImage();
 
-    // Image Prompt
-    HashSet<String> imageUrls = image.generate(
-            "MCmoderSD",                                        // User
-            "Generate a picture of a cat",                      // Prompt
-            1,                                                  // Amount
-            ImageModel.Resolution.RES_512x512.getResolution()   // Resolution
+    // Generate Image
+    HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
+    imageUrls.forEach(System.out::println);
+
+    // Generate Image with custom parameters
+    HashSet<String> customImageUrls = image.generate(
+            "MCmoderSD",            // User
+            "A cat, eating a donut",    // Prompt
+            1,                          // Amount
+            "standard",                 // Quality
+            "256x256",                  // Resolution
+            "vivid"                     // Style
     );
+    customImageUrls.forEach(System.out::println);
   }
 
-  public static void speechExample(OpenAI openAI) {
+  public static AudioFile speechExample(OpenAI openAI) throws InterruptedException {
 
     // Get Speech
     Speech speech = openAI.getSpeech();
 
-    // Speech Prompt
-    AudioFile audioFile = speech.speak(
-            "Hello, how are you",   // Input
-            "alloy",                // Voice
-            "wav",                  // Format
-            1                       // Speed
-    );
+    // Generate TTS
+    speech.speak("Hey, how are you?").play();
+    Thread.sleep(2000); // Wait for Audio to Finish
 
-    // Play Audio
-    audioFile.play();
+    // Generate TTS with custom parameters
+    return speech.speak(
+            "This is a test recording",     // Text
+            "onyx",                             // Voice
+            "wav",                              // Format
+            1d                                  // Speed
+    );
   }
 
-  public static void transcribeExample(OpenAI openAI, AudioFile input) {
+  public static void transcriptionExample(OpenAI openAI, AudioFile audio) {
 
     // Get Transcription
     Transcription transcription = openAI.getTranscription();
 
-    // Transcribe
-    String output = transcription.transcribe(
-            input,                              // Audio File
-            "Translate this text to German: ",  // Prompt
-            "en",                               // Language
-            1                                   // Temperature
+    // Transcribe Audio
+    String text = transcription.transcribe(audio);
+    System.out.println(text);
+
+    // Transcribe Audio with custom parameters
+    text = transcription.transcribe(
+            audio,                          // Audio
+            "What is the following text?",  // Prompt
+            "en",                           // Language
+            1d                              // Temperature
     );
+
+    System.out.println(text);
   }
 }
 ```
-
 For more examples, you can check the [YEPPTalk](https://github.com/MCmoderSD/YEPPTalk) project. <br>
