@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.theokanning.openai.audio.CreateSpeechRequest;
 import com.theokanning.openai.service.OpenAiService;
 
-import de.MCmoderSD.OpenAI.enums.TTSModel;
-
 import de.MCmoderSD.JavaAudioLibrary.AudioFile;
+import de.MCmoderSD.OpenAI.enums.SpeechModel;
 
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -18,19 +18,23 @@ import java.math.BigDecimal;
 public class Speech {
 
     // Associations
-    private final TTSModel model;
+    private final SpeechModel model;
     private final OpenAiService service;
 
     // Attributes
     private final JsonNode config;
+    private final String user;
 
     // Constructor
-    public Speech(TTSModel model, JsonNode config, OpenAiService service) {
+    public Speech(SpeechModel model, JsonNode config, OpenAiService service, String user) {
 
         // Set Associations
         this.model = model;
-        this.config = config;
         this.service = service;
+
+        // Set Attributes
+        this.config = config;
+        this.user = user;
     }
 
     // Create Speech
@@ -73,11 +77,13 @@ public class Speech {
     }
 
     // Text to Speech
-    public AudioFile tts(String input, String voice, String format, double speed) {
+    public AudioFile speak(String input, @Nullable String voice, @Nullable String format, @Nullable Double speed) {
 
-        // Approve parameters
-        if (disprove(input, voice, format, speed))
-            throw new IllegalArgumentException("Invalid parameters");
+        // Check Parameters
+        voice = voice == null ? config.get("voice").asText() : voice;
+        format = format == null ? config.get("format").asText() : format;
+        speed = speed == null ? config.get("speed").asDouble() : speed;
+        if (disprove(input, voice, format, speed)) throw new IllegalArgumentException("Invalid parameters");
 
         // Get response
         ResponseBody response = createSpeech(input, voice, format, speed);
@@ -95,12 +101,16 @@ public class Speech {
         return audioFile;
     }
 
+    public AudioFile speak(String input) {
+        return speak(input, null, null, null);
+    }
+
     // Getter
     public JsonNode getConfig() {
         return config;
     }
 
-    public TTSModel getModel() {
+    public SpeechModel getModel() {
         return model;
     }
 

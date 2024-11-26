@@ -6,7 +6,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashSet;
 
-@SuppressWarnings({"ALL"})
+@SuppressWarnings("ALL")
 public enum TranscriptionModel {
 
     // Models
@@ -22,7 +22,6 @@ public enum TranscriptionModel {
     private final BigDecimal price;
 
     // Constructor
-    @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
     TranscriptionModel(String model, double price) {
 
         // Initialize attributes
@@ -102,8 +101,8 @@ public enum TranscriptionModel {
     }
 
     // Methods
-    public BigDecimal calculateCost(int seconnds) {
-        return price.multiply(new BigDecimal(seconnds));
+    public BigDecimal calculateCost(int seconds) {
+        return price.multiply(new BigDecimal(seconds));
     }
 
     public BigDecimal calculateCost(AudioFile input) {
@@ -141,10 +140,12 @@ public enum TranscriptionModel {
 
     // Check
     public boolean checkModel(String model) {
+        if (model == null || model.isBlank()) return false;
         return models.contains(model);
     }
 
-    public boolean checkTemperature(double temperature) {
+    public boolean checkTemperature(Double temperature) {
+        if (temperature == null) return false;
         return temperature >= minTemperature && temperature <= maxTemperature;
     }
 
@@ -162,6 +163,7 @@ public enum TranscriptionModel {
     }
 
     public boolean checkLanguage(String language) {
+        if (language == null || language.isBlank()) return false;
         return languages.contains(language.toLowerCase());
     }
 }

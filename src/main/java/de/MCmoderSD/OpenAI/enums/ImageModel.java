@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 
-@SuppressWarnings({"ALL"})
+@SuppressWarnings("ALL")
 public enum ImageModel {
 
     // Models
@@ -79,28 +79,34 @@ public enum ImageModel {
 
     // Check Resolution
     public boolean checkModel(String model) {
+        if (model == null || model.isBlank()) return false;
         return models.contains(model);
     }
 
     public boolean checkPrompt(String prompt) {
+        if (prompt == null || prompt.isBlank()) return false;
         return prompt.length() >= minCharacters && prompt.length() <= maxCharacters;
     }
 
-    public boolean checkAmount(int amount) {
+    public boolean checkAmount(Integer amount) {
+        if (amount == null) return false;
         return amount >= minAmount && amount <= maxAmount;
     }
 
     public boolean checkQuality(String quality) {
+        if (quality == null || quality.isBlank()) return false;
         if (model.equals("dall-e-2") && quality.equals("standard")) return true;
         else if (model.equals("dall-e-3")) return quality.equals("standard") || quality.equals("hd");
         else return false;
     }
 
     public boolean checkResolution(String resolution) {
+        if (resolution == null || resolution.isBlank()) return false;
         return resolutions.stream().anyMatch(res -> res.checkResolution(resolution));
     }
 
     public boolean checkStyle(String style) {
+        if (style == null || style.isBlank()) return false;
         if (model.equals("dall-e-2")) return false;
         else return style.equals("vivid") || style.equals("natural");
     }
@@ -188,6 +194,7 @@ public enum ImageModel {
         }
 
         public boolean checkResolution(String resolution) {
+            if (resolution == null || resolution.isBlank()) return false;
             return resolutions.contains(resolution);
         }
 
@@ -234,6 +241,7 @@ public enum ImageModel {
         }
 
         public boolean checkQuality(String quality) {
+            if (quality == null || quality.isBlank()) return false;
             return qualities.contains(quality);
         }
     }
@@ -273,6 +281,7 @@ public enum ImageModel {
         }
 
         public boolean checkStyle(String style) {
+            if (style == null || style.isBlank()) return false;
             return styles.contains(style);
         }
     }

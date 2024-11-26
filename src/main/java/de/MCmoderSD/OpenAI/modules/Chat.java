@@ -13,6 +13,7 @@ import de.MCmoderSD.OpenAI.enums.ChatModel;
 
 import io.reactivex.Flowable;
 import io.reactivex.flowables.ConnectableFlowable;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,16 +32,20 @@ public class Chat {
 
     // Attributes
     private final JsonNode config;
+    private final String user;
 
     // Attributes
     private final HashMap<Integer, ArrayList<ChatMessage>> conversations;
 
-    public Chat(ChatModel model, JsonNode config, OpenAiService service) {
+    public Chat(ChatModel model, JsonNode config, OpenAiService service, String user) {
 
         // Set Associations
         this.model = model;
-        this.config = config;
         this.service = service;
+
+        // Set Attributes
+        this.config = config;
+        this.user = user;
 
         // Init Attributes
         conversations = new HashMap<>();
@@ -64,9 +69,8 @@ public class Chat {
         ArrayList<ChatMessage> filtered = new ArrayList<>();
         for (ChatMessage message : messages) {
             String content = message.getContent();
-            if (content == null || content.isEmpty() || content.isBlank()) continue;
-            if (message.getRole().equals(system ? ChatMessageRole.SYSTEM.value() : ChatMessageRole.USER.value()))
-                filtered.add(message);
+            if (content == null || content.isBlank()) continue;
+            if (message.getRole().equals(system ? ChatMessageRole.SYSTEM.value() : ChatMessageRole.USER.value())) filtered.add(message);
         }
         return filtered;
     }
@@ -103,7 +107,7 @@ public class Chat {
 
             // Check content
             String content = message.getContent();
-            if (content == null || content.isEmpty() || content.isBlank()) continue;
+            if (content == null || content.isBlank()) continue;
 
             // Calculate tokens
             totalTokens += calculateTokens(content);
@@ -118,7 +122,7 @@ public class Chat {
     }
 
     // Create Chat
-    private ChatMessage chatCompleationRequest(String user, ArrayList<ChatMessage> messages, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private ChatMessage chatCompletionRequest(String user, ArrayList<ChatMessage> messages, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
         // Request
         ChatCompletionRequest request = ChatCompletionRequest
@@ -127,11 +131,11 @@ public class Chat {
                 .user(user)                             // User name
                 .messages(messages)                     // Chat history
                 .temperature(temperature)               // Temperature
-                .maxTokens(maxTokens)                   // Max tokens
+                .maxTokens(maxOutputTokens)             // Max output tokens
                 .topP(topP)                             // Top P
                 .frequencyPenalty(frequencyPenalty)     // Frequency penalty
                 .presencePenalty(presencePenalty)       // Presence penalty
-                .n(1)                                // Amount of completions
+                .n(1)                                // Number of completions
                 .stream(false)                          // Stream
                 .build();                               // Build
 
@@ -141,7 +145,7 @@ public class Chat {
     }
 
     // Create Chat Stream
-    private ConnectableFlowable<ChatCompletionChunk> chatCompleationRequestStream(String user, ArrayList<ChatMessage> messages, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private ConnectableFlowable<ChatCompletionChunk> chatCompletionRequestStream(String user, ArrayList<ChatMessage> messages, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
         // Request
         ChatCompletionRequest request = ChatCompletionRequest
@@ -150,11 +154,11 @@ public class Chat {
                 .user(user)                             // User name
                 .messages(messages)                     // Chat history
                 .temperature(temperature)               // Temperature
-                .maxTokens(maxTokens)                   // Max tokens
+                .maxTokens(maxOutputTokens)             // Max output tokens
                 .topP(topP)                             // Top P
                 .frequencyPenalty(frequencyPenalty)     // Frequency penalty
                 .presencePenalty(presencePenalty)       // Presence penalty
-                .n(1)                                // Amount of completions
+                .n(1)                                // Number of completions
                 .stream(true)                           // Stream
                 .build();                               // Build
 
@@ -162,42 +166,40 @@ public class Chat {
     }
 
     // Check Parameters
-    public boolean disprove(String user, String instruction, String prompt, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    public boolean disprove(String user, String instruction, String prompt, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
         // Check Username
         if (user == null) throw new IllegalArgumentException("User name is null");
-        if (user.isEmpty() || user.isBlank()) throw new IllegalArgumentException("User name is empty");
+        if (user.isBlank()) throw new IllegalArgumentException("User name is empty");
 
         // Check Instruction
         if (instruction == null) throw new IllegalArgumentException("Instruction is null");
-        if (instruction.isEmpty() || instruction.isBlank()) throw new IllegalArgumentException("Instruction is empty");
+        if (instruction.isBlank()) throw new IllegalArgumentException("Instruction is empty");
 
         // Check Prompt
         if (prompt == null) throw new IllegalArgumentException("Prompt is null");
-        if (prompt.isEmpty() || prompt.isBlank()) throw new IllegalArgumentException("Prompt is empty");
+        if (prompt.isBlank()) throw new IllegalArgumentException("Prompt is empty");
 
         // Check Variables
         if (!model.checkTemperature(temperature)) throw new IllegalArgumentException("Invalid temperature");
-        if (!model.checkTokens(maxTokens)) throw new IllegalArgumentException("Invalid max tokens");
+        if (!model.checkTokens(maxOutputTokens)) throw new IllegalArgumentException("Invalid max output tokens");
         if (!model.checkTopP((int) topP)) throw new IllegalArgumentException("Invalid top P");
-        if (!model.checkFrequencyPenalty((int) frequencyPenalty))
-            throw new IllegalArgumentException("Invalid frequency penalty");
-        if (!model.checkPresencePenalty((int) presencePenalty))
-            throw new IllegalArgumentException("Invalid presence penalty");
+        if (!model.checkFrequencyPenalty(frequencyPenalty)) throw new IllegalArgumentException("Invalid frequency penalty");
+        if (!model.checkPresencePenalty(presencePenalty)) throw new IllegalArgumentException("Invalid presence penalty");
 
         // Disapprove parameters
         return false;
     }
 
     // Start Conversation
-    private String startConversation(int id, String user, String instruction, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private String startConversation(int id, String user, String instruction, String message, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
         // Add Instruction
         conversations.put(id, new ArrayList<>(Collections.singleton(new ChatMessage(ChatMessageRole.SYSTEM.value(), instruction))));
         addMessage(id, message, false);
 
         // Get response
-        ChatMessage response = chatCompleationRequest(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        ChatMessage response = chatCompletionRequest(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         addMessage(id, response);
 
         // Return response
@@ -205,13 +207,13 @@ public class Chat {
     }
 
     // Continue Conversation
-    private String continueConversation(int id, String user, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private String continueConversation(int id, String user, String message, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
-        // Add message
+        // Add messages
         addMessage(id, message, false);
 
         // Get response
-        ChatMessage response = chatCompleationRequest(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        ChatMessage response = chatCompletionRequest(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         addMessage(id, response);
 
         // Return response
@@ -219,40 +221,46 @@ public class Chat {
     }
 
     // Start Conversation Stream
-    private ConnectableFlowable<ChatCompletionChunk> startConversationStream(int id, String user, String instruction, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private ConnectableFlowable<ChatCompletionChunk> startConversationStream(int id, String user, String instruction, String message, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
         // Add Instruction
         conversations.put(id, new ArrayList<>(Collections.singleton(new ChatMessage(ChatMessageRole.SYSTEM.value(), instruction))));
         addMessage(id, message, false);
 
         // Get response
-        ConnectableFlowable<ChatCompletionChunk> response = chatCompleationRequestStream(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        ConnectableFlowable<ChatCompletionChunk> response = chatCompletionRequestStream(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         addMessage(id, response);
 
         // Get response
-        return chatCompleationRequestStream(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        return chatCompletionRequestStream(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
     }
 
     // Continue Conversation Stream
-    private ConnectableFlowable<ChatCompletionChunk> continueConversationStream(int id, String user, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    private ConnectableFlowable<ChatCompletionChunk> continueConversationStream(int id, String user, String message, double temperature, int maxOutputTokens, double topP, double frequencyPenalty, double presencePenalty) {
 
-        // Add message
+        // Add messages
         addMessage(id, message, false);
 
         // Get response
-        ConnectableFlowable<ChatCompletionChunk> response = chatCompleationRequestStream(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        ConnectableFlowable<ChatCompletionChunk> response = chatCompletionRequestStream(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         addMessage(id, response);
 
         // Get response
-        return chatCompleationRequestStream(user, conversations.get(id), temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        return chatCompletionRequestStream(user, conversations.get(id), temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
     }
 
     // Prompt
-    public String prompt(String user, String instruction, String prompt, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    public String prompt(@Nullable String user, @Nullable String instruction, String prompt, @Nullable Double temperature, @Nullable Integer maxOutputTokens, @Nullable Double topP, @Nullable Double frequencyPenalty, @Nullable Double presencePenalty) {
 
         // Approve parameters
-        if (disprove(user, instruction, prompt, temperature, maxTokens, topP, frequencyPenalty, presencePenalty))
-            throw new IllegalArgumentException("Invalid parameters");
+        user = user == null ? this.user : user;
+        instruction = instruction == null ? config.get("instruction").asText() : instruction;
+        temperature = temperature == null ? config.get("temperature").asDouble() : temperature;
+        maxOutputTokens = maxOutputTokens == null ? config.get("maxOutputTokens").asInt() : maxOutputTokens;
+        topP = topP == null ? config.get("topP").asDouble() : topP;
+        frequencyPenalty = frequencyPenalty == null ? config.get("frequencyPenalty").asDouble() : frequencyPenalty;
+        presencePenalty = presencePenalty == null ? config.get("presencePenalty").asDouble() : presencePenalty;
+        if (disprove(user, instruction, prompt, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty)) throw new IllegalArgumentException("Invalid parameters");
 
         // Add messages
         ArrayList<ChatMessage> messages = new ArrayList<>();
@@ -260,18 +268,32 @@ public class Chat {
         messages.add(addMessage(prompt, false));
 
         // Get response
-        ChatMessage response = chatCompleationRequest(user, messages, temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        ChatMessage response = chatCompletionRequest(user, messages, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
 
         // Return response
         return response.getContent();
     }
 
+    public String prompt(String instruction, String prompt) {
+        return prompt(null, instruction, prompt, null, null, null, null, null);
+    }
+
+    public String prompt(String prompt) {
+        return prompt(null, null, prompt, null, null, null, null, null);
+    }
+
     // Prompt Stream
-    public Flowable<ChatCompletionChunk> promptStream(String user, String instruction, String prompt, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    public Flowable<ChatCompletionChunk> promptStream(@Nullable String user, @Nullable String instruction, String prompt, @Nullable Double temperature, @Nullable Integer maxOutputTokens, @Nullable Double topP, @Nullable Double frequencyPenalty, @Nullable Double presencePenalty) {
 
         // Approve parameters
-        if (disprove(user, instruction, prompt, temperature, maxTokens, topP, frequencyPenalty, presencePenalty))
-            throw new IllegalArgumentException("Invalid parameters");
+        user = user == null ? this.user : user;
+        instruction = instruction == null ? config.get("instruction").asText() : instruction;
+        temperature = temperature == null ? config.get("temperature").asDouble() : temperature;
+        maxOutputTokens = maxOutputTokens == null ? config.get("maxOutputTokens").asInt() : maxOutputTokens;
+        topP = topP == null ? config.get("topP").asDouble() : topP;
+        frequencyPenalty = frequencyPenalty == null ? config.get("frequencyPenalty").asDouble() : frequencyPenalty;
+        presencePenalty = presencePenalty == null ? config.get("presencePenalty").asDouble() : presencePenalty;
+        if (disprove(user, instruction, prompt, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty)) throw new IllegalArgumentException("Invalid parameters");
 
         // Add messages
         ArrayList<ChatMessage> messages = new ArrayList<>();
@@ -279,63 +301,100 @@ public class Chat {
         messages.add(addMessage(prompt, false));
 
         // Get response
-        return chatCompleationRequestStream(user, messages, temperature, maxTokens, topP, frequencyPenalty, presencePenalty).autoConnect();
+        return chatCompletionRequestStream(user, messages, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
     }
 
-    // Conversetion
-    public String converse(int id, int maxConversationCalls, int maxTokenSpendingLimit, String user, String instruction, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    public String promptStream(String instruction, String prompt) {
+        return prompt(null, instruction, prompt, null, null, null, null, null);
+    }
+
+    public Flowable<ChatCompletionChunk> promptStream(String prompt) {
+        return promptStream(null, null, prompt, null, null, null, null, null);
+    }
+
+    // Conversation
+    public String converse(int id, @Nullable Integer maxConversationCalls, @Nullable Integer maxTokenSpendingLimit, @Nullable String user, @Nullable String instruction, String message, @Nullable Double temperature, @Nullable Integer maxOutputTokens, @Nullable Double topP, @Nullable Double frequencyPenalty, @Nullable Double presencePenalty) {
 
         // Approve parameters
-        if (disprove(user, instruction, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty))
-            throw new IllegalArgumentException("Invalid parameters");
+        maxConversationCalls = maxConversationCalls == null ? config.get("maxConversationCalls").asInt() : maxConversationCalls;
+        maxTokenSpendingLimit = maxTokenSpendingLimit == null ? config.get("maxTokenSpendingLimit").asInt() : maxTokenSpendingLimit;
+        user = user == null ? this.user : user;
+        instruction = instruction == null ? config.get("instruction").asText() : instruction;
+        temperature = temperature == null ? config.get("temperature").asDouble() : temperature;
+        maxOutputTokens = maxOutputTokens == null ? config.get("maxOutputTokens").asInt() : maxOutputTokens;
+        topP = topP == null ? config.get("topP").asDouble() : topP;
+        frequencyPenalty = frequencyPenalty == null ? config.get("frequencyPenalty").asDouble() : frequencyPenalty;
+        presencePenalty = presencePenalty == null ? config.get("presencePenalty").asDouble() : presencePenalty;
+        if (disprove(user, instruction, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty)) throw new IllegalArgumentException("Invalid parameters");
 
         // Variables
         ArrayList<ChatMessage> conversation;
 
         // Continue conversation
         if (hasConversation(id)) conversation = conversations.get(id);
-        else
-            return startConversation(id, user, instruction, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        else return startConversation(id, user, instruction, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
 
         // Check Limit
-        boolean tokenSpendingLimit = calculateTotalTokens(conversation) + calculateTokens(message) + maxTokens >= maxTokenSpendingLimit;
+        var contextValue = calculateTotalTokens(conversation) + calculateTokens(message) + maxOutputTokens;
+        boolean tokenSpendingLimit = contextValue >= maxTokenSpendingLimit;
         boolean conversationLimit = filterMessages(conversation, false).size() >= maxConversationCalls;
 
         // Continue conversation
-        if (!(tokenSpendingLimit || conversationLimit))
-            return continueConversation(id, user, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty);
+        if (!(tokenSpendingLimit || conversationLimit)) return continueConversation(id, user, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         else conversations.remove(id);
 
         // Return message
-        if (conversationLimit)
-            return "The conversation has reached the call limit of " + maxConversationCalls + " calls";
+        if (conversationLimit) return "The conversation has reached the call limit of " + maxConversationCalls + " calls";
         else return "The conversation has reached the token limit of " + maxTokenSpendingLimit + " tokens";
     }
 
-    // Conversetion Stream
-    public Flowable<ChatCompletionChunk> converseStream(int id, int maxConversationCalls, int maxTokenSpendingLimit, String user, String instruction, String message, double temperature, int maxTokens, double topP, double frequencyPenalty, double presencePenalty) {
+    public String converse(int id, String instruction, String message) {
+        return converse(id, null, null, null, instruction, message, null, null, null, null, null);
+    }
+
+    public String converse(int id, String message) {
+        return converse(id, null, null, null, null, message, null, null, null, null, null);
+    }
+
+    // Conversation Stream
+    public Flowable<ChatCompletionChunk> converseStream(int id, @Nullable Integer maxConversationCalls, @Nullable Integer maxTokenSpendingLimit, @Nullable String user, @Nullable String instruction, String message, @Nullable Double temperature, @Nullable Integer maxOutputTokens, @Nullable Double topP, @Nullable Double frequencyPenalty, @Nullable Double presencePenalty) {
 
         // Approve parameters
-        if (disprove(user, instruction, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty))
-            throw new IllegalArgumentException("Invalid parameters");
+        maxConversationCalls = maxConversationCalls == null ? config.get("maxConversationCalls").asInt() : maxConversationCalls;
+        maxTokenSpendingLimit = maxTokenSpendingLimit == null ? config.get("maxTokenSpendingLimit").asInt() : maxTokenSpendingLimit;
+        user = user == null ? this.user : user;
+        instruction = instruction == null ? config.get("instruction").asText() : instruction;
+        temperature = temperature == null ? config.get("temperature").asDouble() : temperature;
+        maxOutputTokens = maxOutputTokens == null ? config.get("maxOutputTokens").asInt() : maxOutputTokens;
+        topP = topP == null ? config.get("topP").asDouble() : topP;
+        frequencyPenalty = frequencyPenalty == null ? config.get("frequencyPenalty").asDouble() : frequencyPenalty;
+        presencePenalty = presencePenalty == null ? config.get("presencePenalty").asDouble() : presencePenalty;
+        if (disprove(user, instruction, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty)) throw new IllegalArgumentException("Invalid parameters");
 
         // Variables
         ArrayList<ChatMessage> conversation;
 
         // Continue conversation
         if (hasConversation(id)) conversation = conversations.get(id);
-        else
-            return startConversationStream(id, user, instruction, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty).autoConnect();
+        else return startConversationStream(id, user, instruction, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
 
         // Check Limit
-        boolean tokenSpendingLimit = calculateTotalTokens(conversation) + calculateTokens(message) + maxTokens >= maxTokenSpendingLimit;
+        var contextValue = calculateTotalTokens(conversation) + calculateTokens(message) + maxOutputTokens;
+        boolean tokenSpendingLimit = contextValue >= maxTokenSpendingLimit;
         boolean conversationLimit = filterMessages(conversation, false).size() >= maxConversationCalls;
 
         // Continue conversation
-        if (!(tokenSpendingLimit || conversationLimit))
-            return continueConversationStream(id, user, message, temperature, maxTokens, topP, frequencyPenalty, presencePenalty).autoConnect();
+        if (!(tokenSpendingLimit || conversationLimit)) return continueConversationStream(id, user, message, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty);
         else conversations.remove(id);
         return null;
+    }
+
+    public Flowable<ChatCompletionChunk> converseStream(int id, String instruction, String message) {
+        return converseStream(id, null, null, null, instruction, message, null, null, null, null, null);
+    }
+
+    public Flowable<ChatCompletionChunk> converseStream(int id, String message) {
+        return converseStream(id, null, null, null, null, message, null, null, null, null, null);
     }
 
     // Add Message
@@ -404,7 +463,7 @@ public class Chat {
         return model.calculateCost(tokens);
     }
 
-    public BigDecimal calculateConverationCost(int id) {
+    public BigDecimal calculateConversationCost(int id) {
         return model.calculateCost(getConversationTokens(id));
     }
 }

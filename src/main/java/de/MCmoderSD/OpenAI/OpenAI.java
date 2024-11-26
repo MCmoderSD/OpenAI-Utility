@@ -6,7 +6,7 @@ import com.theokanning.openai.service.OpenAiService;
 
 import de.MCmoderSD.OpenAI.enums.ChatModel;
 import de.MCmoderSD.OpenAI.enums.ImageModel;
-import de.MCmoderSD.OpenAI.enums.TTSModel;
+import de.MCmoderSD.OpenAI.enums.SpeechModel;
 import de.MCmoderSD.OpenAI.enums.TranscriptionModel;
 
 import de.MCmoderSD.OpenAI.modules.Chat;
@@ -19,6 +19,7 @@ public class OpenAI {
 
     // Constants
     private final JsonNode config;
+    private final String user;
 
     // Attributes
     private final OpenAiService service;
@@ -38,14 +39,15 @@ public class OpenAI {
     // Enums
     private final ChatModel chatModel;
     private final ImageModel imageModel;
-    private final TTSModel ttsModel;
+    private final SpeechModel speechModel;
     private final TranscriptionModel transcriptionModel;
 
     // Constructor
     public OpenAI(JsonNode config) {
 
-        // Set Config
+        // Set Config and User
         this.config = config;
+        user = config.get("user").asText();
 
         // Initialize OpenAI Service
         service = new OpenAiService(config.get("apiKey").asText());
@@ -61,25 +63,30 @@ public class OpenAI {
 
             // Get Chat Config
             JsonNode chatConfig = config.get("chat");
-            String chatModelName = chatConfig.get("chatModel").asText();
+            String model = chatConfig.get("model").asText();
 
             // Check Chat Model
-            if (chatModelName == null) throw new IllegalArgumentException("Chat model is null");
-            if (chatModelName.isEmpty() || chatModelName.isBlank())
-                throw new IllegalArgumentException("Chat model is empty");
+            if (model == null) throw new IllegalArgumentException("Chat model is null");
+            if (model.isBlank()) throw new IllegalArgumentException("Chat model is empty");
 
             // Set Chat Model
-            chatModel = switch (chatModelName) {
+            chatModel = switch (model) {
                 case "gpt-4o" -> ChatModel.GPT_4O;
+                case "gpt-4o-2024-11-20" -> ChatModel.GPT_4O_2024_11_20;
                 case "gpt-4o-2024-08-06" -> ChatModel.GPT_4O_2024_08_06;
                 case "gpt-4o-2024-05-13" -> ChatModel.GPT_4O_2024_05_13;
                 case "gpt-4o-mini" -> ChatModel.GPT_4O_MINI;
                 case "gpt-4o-mini-2024-07-18" -> ChatModel.GPT_4O_MINI_2024_07_18;
+                case "o1-preview" -> ChatModel.O1_PREVIEW;
+                case "o1-preview-2024-09-12" -> ChatModel.O1_PREVIEW_2024_09_12;
+                case "o1-mini" -> ChatModel.O1_MINI;
+                case "o1-mini-2024-09-12" -> ChatModel.O1_MINI_2024_09_12;
+                case "chatgpt-4o-latest" -> ChatModel.CHATGPT_4O_LATEST;
                 default -> throw new IllegalArgumentException("Invalid chat model");
             };
 
             // Initialize Chat
-            chat = new Chat(chatModel, chatConfig, service);
+            chat = new Chat(chatModel, chatConfig, service, user);
         } else {
             chatModel = null;
             chat = null;
@@ -90,22 +97,22 @@ public class OpenAI {
 
             // Get Image Config
             JsonNode imageConfig = config.get("image");
-            String imageModelName = imageConfig.get("imageModel").asText();
+            String model = imageConfig.get("model").asText();
 
             // Check Image Model
-            if (imageModelName == null) throw new IllegalArgumentException("Image model is null");
-            if (imageModelName.isEmpty() || imageModelName.isBlank())
+            if (model == null) throw new IllegalArgumentException("Image model is null");
+            if (model.isBlank())
                 throw new IllegalArgumentException("Image model is empty");
 
             // Set Image Model
-            imageModel = switch (imageModelName) {
+            imageModel = switch (model) {
                 case "dall-e-2" -> ImageModel.DALL_E_2;
                 case "dall-e-3" -> ImageModel.DALL_E_3;
                 default -> throw new IllegalArgumentException("Invalid image model");
             };
 
             // Initialize Image
-            image = new Image(imageModel, imageConfig, service);
+            image = new Image(imageModel, imageConfig, service, user);
         } else {
             imageModel = null;
             image = null;
@@ -114,26 +121,25 @@ public class OpenAI {
         // Initialize Speech Module
         if (speechActive) {
 
-            // Get TTS Config
-            JsonNode ttsConfig = config.get("speech");
-            String ttsModelName = ttsConfig.get("ttsModel").asText();
+            // Get Speech Config
+            JsonNode speechConfig = config.get("speech");
+            String model = speechConfig.get("model").asText();
 
-            // Check TTS Model
-            if (ttsModelName == null) throw new IllegalArgumentException("TTS model is null");
-            if (ttsModelName.isEmpty() || ttsModelName.isBlank())
-                throw new IllegalArgumentException("TTS model is empty");
+            // Check Speech Model
+            if (model == null) throw new IllegalArgumentException("Speech model is null");
+            if (model.isBlank()) throw new IllegalArgumentException("Speech model is empty");
 
             // Set TTS Model
-            ttsModel = switch (ttsModelName) {
-                case "tts-1" -> TTSModel.TTS;
-                case "tts-1-hd" -> TTSModel.TTS_HD;
-                default -> throw new IllegalArgumentException("Invalid TTS model");
+            speechModel = switch (model) {
+                case "tts-1" -> SpeechModel.TTS;
+                case "tts-1-hd" -> SpeechModel.TTS_HD;
+                default -> throw new IllegalArgumentException("Invalid Speech model");
             };
 
             // Initialize Speech
-            speech = new Speech(ttsModel, ttsConfig, service);
+            speech = new Speech(speechModel, speechConfig, service, user);
         } else {
-            ttsModel = null;
+            speechModel = null;
             speech = null;
         }
 
@@ -142,21 +148,20 @@ public class OpenAI {
 
             // Get Transcription Config
             JsonNode transcriptionConfig = config.get("transcription");
-            String transcriptionModelName = transcriptionConfig.get("transcriptionModel").asText();
+            String model = transcriptionConfig.get("model").asText();
 
             // Check Transcription Model
-            if (transcriptionModelName == null) throw new IllegalArgumentException("Transcription model is null");
-            if (transcriptionModelName.isEmpty() || transcriptionModelName.isBlank())
-                throw new IllegalArgumentException("Transcription model is empty");
+            if (model == null) throw new IllegalArgumentException("Transcription model is null");
+            if (model.isBlank()) throw new IllegalArgumentException("Transcription model is empty");
 
             // Set Transcription Model
-            transcriptionModel = switch (transcriptionModelName) {
+            transcriptionModel = switch (model) {
                 case "whisper-1" -> TranscriptionModel.WHISPER;
                 default -> throw new IllegalArgumentException("Invalid transcription model");
             };
 
             // Initialize Transcription
-            transcription = new Transcription(transcriptionModel, transcriptionConfig, service);
+            transcription = new Transcription(transcriptionModel, transcriptionConfig, service, user);
         } else {
             transcriptionModel = null;
             transcription = null;
@@ -174,6 +179,10 @@ public class OpenAI {
 
     public OpenAiService getService() {
         return service;
+    }
+
+    public String getUser() {
+        return user;
     }
 
     public Chat getChat() {
@@ -217,8 +226,8 @@ public class OpenAI {
         return imageModel;
     }
 
-    public TTSModel getTtsModel() {
-        return ttsModel;
+    public SpeechModel getSpeechModel() {
+        return speechModel;
     }
 
     public TranscriptionModel getTranscriptionModel() {

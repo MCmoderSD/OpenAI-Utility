@@ -6,9 +6,9 @@ import com.theokanning.openai.audio.CreateTranscriptionRequest;
 import com.theokanning.openai.audio.TranscriptionResult;
 import com.theokanning.openai.service.OpenAiService;
 
-import de.MCmoderSD.OpenAI.enums.TranscriptionModel;
-
 import de.MCmoderSD.JavaAudioLibrary.AudioFile;
+import de.MCmoderSD.OpenAI.enums.TranscriptionModel;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,18 +26,22 @@ public class Transcription {
 
     // Attributes
     private final JsonNode config;
+    private final String user;
 
     // Constructor
-    public Transcription(TranscriptionModel model, JsonNode config, OpenAiService service) {
+    public Transcription(TranscriptionModel model, JsonNode config, OpenAiService service, String user) {
 
         // Set Associations
         this.model = model;
-        this.config = config;
         this.service = service;
+
+        // Set Attributes
+        this.config = config;
+        this.user = user;
     }
 
     // Create Transcription
-    private TranscriptionResult createTranscription(File audioFile, String prompt, String language, double temperature) {
+    private TranscriptionResult createTranscription(File audioFile, String prompt, String language, Double temperature) {
 
         // Request
         CreateTranscriptionRequest request = CreateTranscriptionRequest
@@ -71,7 +75,7 @@ public class Transcription {
     }
 
     // Transcribe
-    public String transcribe(AudioFile audioFile, String prompt, String language, double temperature) {
+    public String transcribe(AudioFile audioFile, @Nullable String prompt, @Nullable String language, @Nullable Double temperature) {
 
         // Get Temp Directory
         String tmpDir = System.getProperty("java.io.tmpdir");
@@ -79,7 +83,7 @@ public class Transcription {
         String path = String.format("%s/.%s", tmpDir, fileName);
 
         // Export Audio File
-        File file = null;
+        File file;
         try {
             file = audioFile.export(path);
         } catch (IOException e) {
@@ -87,7 +91,10 @@ public class Transcription {
         }
 
         // Check Parameters
-        if (disprove(file, language, temperature)) return null;
+        prompt = prompt == null ? config.get("prompt").asText() : prompt;
+        language = language == null ? config.get("language").asText() : language;
+        temperature = temperature == null ? config.get("temperature").asDouble() : temperature;
+        if (disprove(file, language, temperature)) throw new IllegalArgumentException("Invalid parameters");
 
         // Create Transcription
         TranscriptionResult result = createTranscription(file, prompt, language, temperature);
@@ -100,8 +107,16 @@ public class Transcription {
     }
 
     // Transcribe
-    public String transcribe(byte[] audioData, String prompt, String language, double temperature) {
+    public String transcribe(byte[] audioData, @Nullable String prompt, @Nullable String language, @Nullable Double temperature) {
         return transcribe(new AudioFile(audioData), prompt, language, temperature);
+    }
+
+    public String transcribe(AudioFile audioFile) {
+        return transcribe(audioFile, null, null, null);
+    }
+
+    public String transcribe(byte[] audioData) {
+        return transcribe(new AudioFile(audioData));
     }
 
     // SHA-256

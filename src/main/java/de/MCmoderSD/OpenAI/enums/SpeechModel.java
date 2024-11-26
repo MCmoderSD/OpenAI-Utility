@@ -3,8 +3,8 @@ package de.MCmoderSD.OpenAI.enums;
 import java.math.BigDecimal;
 import java.util.HashSet;
 
-@SuppressWarnings({"ALL"})
-public enum TTSModel {
+@SuppressWarnings("ALL")
+public enum SpeechModel {
 
     // Models
     TTS("tts-1", 0.015),
@@ -22,7 +22,7 @@ public enum TTSModel {
     private final BigDecimal price;
 
     // Constructor
-    TTSModel(String model, double price) {
+    SpeechModel(String model, double price) {
 
         // Initialize attributes
         models = new HashSet<>();
@@ -162,26 +162,31 @@ public enum TTSModel {
 
     // Check
     public boolean checkModel(String model) {
+        if (model == null || model.isBlank()) return false;
         return models.contains(model);
     }
 
     public boolean checkInput(String input) {
-        return !input.isEmpty() && !input.isBlank() && input.length() <= maxCharacters;
+        return !input.isBlank() && input.length() <= maxCharacters;
     }
 
     public boolean checkVoice(String voice) {
+        if (voice == null || voice.isBlank()) return false;
         return voices.contains(voice);
     }
 
     public boolean checkFormat(String format) {
+        if (format == null || format.isBlank()) return false;
         return formats.contains(format);
     }
 
-    public boolean checkSpeed(double speed) {
+    public boolean checkSpeed(Double speed) {
+        if (speed == null) return false;
         return speed >= minSpeed && speed <= maxSpeed;
     }
 
     public boolean checkLanguage(String language) {
+        if (language == null || language.isBlank()) return false;
         return languages.contains(language);
     }
 }
