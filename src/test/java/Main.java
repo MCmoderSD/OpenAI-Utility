@@ -24,10 +24,10 @@ public class Main {
         OpenAI openAI = new OpenAI(config);
 
         // Examples
-        //chatExample(openAI);
+        chatExample(openAI);
         imageExample(openAI);
-        //AudioFile testFile = speechExample(openAI);
-        //transcriptionExample(openAI, testFile);
+        AudioFile testFile = speechExample(openAI);
+        transcriptionExample(openAI, testFile);
     }
 
     public static void chatExample(OpenAI openAI) throws InterruptedException {
@@ -106,7 +106,7 @@ public class Main {
                 "A cat, eating a donut",    // Prompt
                 1,                          // Amount
                 null,                       // Quality
-                "512x512",                  // Resolution
+                "256x256",                  // Resolution
                 null                        // Style
         );
         customImageUrls.forEach(System.out::println);

@@ -13,7 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-
+/**
+ * This class provides functionality for converting text to speech using OpenAI's speech models.
+ * It handles parameter validation, speech generation, and returning audio files.
+ */
 @SuppressWarnings({"ALL"})
 public class Speech {
 
@@ -25,7 +28,14 @@ public class Speech {
     private final JsonNode config;
     private final String user;
 
-    // Constructor
+    /**
+     * Constructor to initialize the Speech object with the necessary associations and attributes.
+     *
+     * @param model  The speech model to use for conversion (e.g., GPT-based speech synthesis).
+     * @param config Configuration settings (e.g., default voice, format, speed).
+     * @param service The OpenAiService instance to interact with the OpenAI API.
+     * @param user   The user associated with the speech generation.
+     */
     public Speech(SpeechModel model, JsonNode config, OpenAiService service, String user) {
 
         // Set Associations
@@ -37,7 +47,15 @@ public class Speech {
         this.user = user;
     }
 
-    // Create Speech
+    /**
+     * Creates a speech request using the provided parameters.
+     *
+     * @param input    The input text to convert to speech.
+     * @param voice    The voice to use for speech generation.
+     * @param format   The format of the response (e.g., audio format).
+     * @param speed    The speed of the generated speech.
+     * @return The response body containing the audio data.
+     */
     private ResponseBody createSpeech(String input, String voice, String format, double speed) {
 
         // Request
@@ -54,7 +72,15 @@ public class Speech {
         return service.createSpeech(request);
     }
 
-    // Check Parameters
+    /**
+     * Validates the input parameters for speech generation.
+     *
+     * @param input    The input text to convert to speech.
+     * @param voice    The voice to use for speech generation.
+     * @param format   The format of the response (e.g., audio format).
+     * @param speed    The speed of the generated speech.
+     * @return True if parameters are valid, false otherwise.
+     */
     public boolean disprove(String input, String voice, String format, double speed) {
 
         // Check Input
@@ -76,7 +102,15 @@ public class Speech {
         return false;
     }
 
-    // Text to Speech
+    /**
+     * Converts the input text to speech and returns the resulting audio file.
+     *
+     * @param input    The input text to convert to speech.
+     * @param voice    The voice to use for speech generation (optional).
+     * @param format   The format of the response (optional).
+     * @param speed    The speed of the generated speech (optional).
+     * @return An AudioFile containing the generated speech.
+     */
     public AudioFile speak(String input, @Nullable String voice, @Nullable String format, @Nullable Double speed) {
 
         // Check Parameters
@@ -100,28 +134,59 @@ public class Speech {
         // Return audio file
         return audioFile;
     }
-
+    /**
+     * Converts text to speech using the default parameters.
+     *
+     * @param input The text to convert to speech.
+     * @return An AudioFile containing the generated speech.
+     */
     public AudioFile speak(String input) {
         return speak(input, null, null, null);
     }
 
-    // Getter
+    /**
+     * Retrieves the configuration settings for speech generation.
+     *
+     * @return The configuration as a JsonNode object.
+     */
     public JsonNode getConfig() {
         return config;
     }
 
+    /**
+     * Retrieves the speech model associated with this instance.
+     *
+     * @return The SpeechModel.
+     */
     public SpeechModel getModel() {
         return model;
     }
 
+    /**
+     * Retrieves the OpenAiService instance used to interact with the OpenAI API.
+     *
+     * @return The OpenAiService instance.
+     */
     public OpenAiService getService() {
         return service;
     }
 
+    /**
+     * Calculates the cost of generating speech based on the input length.
+     *
+     * @param input The input text to convert to speech.
+     * @return The price as a BigDecimal.
+     */
     public BigDecimal calculatePrice(String input) {
         return model.calculateCost(input.length());
     }
 
+    /**
+     * Calculates the cost of generating speech based on the number of characters.
+     *
+     * @param characters The number of characters in the input text.
+     * @return The price as a BigDecimal.
+     */
     public BigDecimal calculatePrice(int characters) {
         return model.calculateCost(characters);
     }

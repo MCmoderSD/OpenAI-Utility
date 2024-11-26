@@ -118,7 +118,7 @@ Note: <br>
 | model      | Model used for generating images (`dall-e-2`,` dall-e-3`).               |
 | quality    | Image quality: `standard` or `hd` (only for `dall-e-3`).                 |
 | resolution | Image size: `256x256`, `512x512`, `1024x1024`, `1024x1792`, `1792x1024`. |
-| style      | Image style: `vivid` or `natural`.                                       |
+| style      | Image style: `vivid` or `natural`. (only for `dall-e-3`)                 |
 
 #### Image Models and Pricing
 | **Model** | **Quality** | **Resolution**                        | **Pricing**                                                      |
@@ -264,14 +264,14 @@ public class Main {
         HashSet<String > imageUrls = image.generate("A beautiful sunset over the ocean");
         imageUrls.forEach(System.out::println);
 
-        // Generate Image with custom parameters
+        // Generate Image with custom parameters (DALL-E 2)
         HashSet<String> customImageUrls = image.generate(
                 "MCmoderSD",            // User
                 "A cat, eating a donut",    // Prompt
                 1,                          // Amount
-                "standard",                 // Quality
+                null,                       // Quality
                 "256x256",                  // Resolution
-                "vivid"                     // Style
+                null                        // Style
         );
         customImageUrls.forEach(System.out::println);
     }
