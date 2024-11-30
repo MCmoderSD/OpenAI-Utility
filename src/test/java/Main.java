@@ -46,7 +46,7 @@ public class Main {
 
         // Custom Prompt
         String customPrompt = chat.prompt(
-                "MCmoderSD",                                // User
+                "MCmoderSD",                                    // User
                 "Translate the following text into German: ",   // Prompt
                 "Hello, how are you?",                          // Text
                 1d,                                             // Temperature
@@ -59,7 +59,7 @@ public class Main {
 
         // Custom Prompt Stream
         chat.promptStream(
-                "MCmoderSD",                                // User
+                "MCmoderSD",                                    // User
                 "Translate the following text into French: ",   // Prompt
                 "Hello, how are you?",                          // Text
                 1d,                                             // Temperature
@@ -102,7 +102,7 @@ public class Main {
 
         // Generate Image with custom parameters (DALL-E 2)
         HashSet<String> customImageUrls = image.generate(
-                "MCmoderSD",            // User
+                "MCmoderSD",                // User
                 "A cat, eating a donut",    // Prompt
                 1,                          // Amount
                 null,                       // Quality
@@ -123,7 +123,7 @@ public class Main {
 
         // Generate TTS with custom parameters
         return speech.speak(
-                "This is a test recording",     // Text
+                "This is a test recording",         // Text
                 "onyx",                             // Voice
                 "wav",                              // Format
                 1d                                  // Speed
