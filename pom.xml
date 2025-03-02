@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.MCmoderSD</groupId>
-    <artifactId>openai</artifactId>
-    <version>1.1.0</version>
+    <artifactId>OpenAI</artifactId>
+    <version>1.2.0</version>
 
     <name>OpenAI-Utility</name>
     <description>A Java utility for the OpenAI API services</description>
 
     <distributionManagement>
         <repository>
-            <id>OpenAI-Utility</id>
-            <name>GitHub MCmoderSD Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/MCmoderSD/OpenAI-Utility</url>
+            <id>Nexus</id>
+            <name>Sonatype Nexus</name>
+            <url>https://mcmodersd.de/nexus/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
@@ -27,8 +27,9 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>Nexus</id>
+            <name>Sonatype Nexus</name>
+            <url>https://mcmodersd.de/nexus/repository/maven-releases/</url>
         </repository>
     </repositories>
 
@@ -36,16 +37,16 @@
 
         <!-- JavaAudioLibrary -->
         <dependency>
-            <groupId>com.github.MCmoderSD</groupId>
+            <groupId>de.MCmoderSD</groupId>
             <artifactId>JavaAudioLibrary</artifactId>
-            <version>1.1.6</version>
+            <version>1.2.0</version>
         </dependency>
 
         <!-- Json -->
         <dependency>
-            <groupId>com.github.MCmoderSD</groupId>
+            <groupId>de.MCmoderSD</groupId>
             <artifactId>JsonUtility</artifactId>
-            <version>1.1.1</version>
+            <version>1.2.0</version>
         </dependency>
 
         <!-- OpenAI Service -->
@@ -59,7 +60,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>26.0.1</version>
+            <version>26.0.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

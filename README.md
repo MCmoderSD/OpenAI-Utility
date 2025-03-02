@@ -1,6 +1,4 @@
 # OpenAI Utility
-[![](https://jitpack.io/v/MCmoderSD/OpenAI-Utility.svg)](https://jitpack.io/#MCmoderSD/OpenAI-Utility)
-
 
 ## Description
 This **Java Utility** provides seamless integration with **OpenAI API Services**, offering a straightforward approach to interact with various OpenAI features.
@@ -19,21 +17,22 @@ This utility simplifies complex interactions, making it easier than ever to harn
 ## Usage
 
 ### Maven
-Make sure you have the JitPack repository added to your `pom.xml` file:
+Make sure you have my Sonatype Nexus OSS repository added to your `pom.xml` file:
 ```xml
 <repositories>
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>Nexus</id>
+        <name>Sonatype Nexus</name>
+        <url>https://mcmodersd.de/nexus/repository/maven-releases/</url>
     </repository>
 </repositories>
 ```
 Add the dependency to your `pom.xml` file:
 ```xml
 <dependency>
-    <groupId>com.github.MCmoderSD</groupId>
-    <artifactId>OpenAI-Utility</artifactId>
-    <version>1.1.0</version>
+    <groupId>de.MCmoderSD</groupId>
+    <artifactId>OpenAI</artifactId>
+    <version>1.2.0</version>
 </dependency>
 ```
 
