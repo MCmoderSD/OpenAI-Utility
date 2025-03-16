@@ -1,4 +1,8 @@
-# OpenAI Utility
+> ⚠️ Deprecated: This utility is no longer maintained. Please consider using my new [OpenAI Wrapper](https://www.GitHub.com/MCmoderSD/OpenAI-Wrapper). <br>
+> Since OpenAI published their own Java SDK and the [OpenAI Library](https://github.com/TheoKanning/openai-java) by [Theo Kanning](https://github.com/TheoKanning/) is also long abandoned, I will no longer maintain this utility. <br>
+> ⚠️ The Utility is still available for download, but I recommend switching to the new wrapper for better support and features. <br>
+
+# ~~OpenAI Utility~~
 
 ## Description
 This **Java Utility** provides seamless integration with **OpenAI API Services**, offering a straightforward approach to interact with various OpenAI features.
@@ -314,4 +318,4 @@ public class Main {
     }
 }
 ```
-For more examples, you can check the [YEPPTalk](https://github.com/MCmoderSD/YEPPTalk) project. <br>
+~~For more examples, you can check the [YEPPTalk](https://github.com/MCmoderSD/YEPPTalk) project. <br>~~
